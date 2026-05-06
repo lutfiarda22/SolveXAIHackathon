@@ -87,6 +87,23 @@ public class AIDecisionEngine
         if (!decimal.TryParse(tutarStr, out var tutar)) tutar = 0;
 
         var departman = instance.FormVerisi.GetValueOrDefault("Departman", "Bilinmiyor");
+        var konu = instance.FormVerisi.GetValueOrDefault("Konu", "").ToLowerInvariant();
+        var adimAdi = step.Ad.ToLowerInvariant();
+
+        // KURAL 0: İzin Süreçleri (Hastalık, Vefat vb.)
+        if (konu.Contains("izin") || adimAdi.Contains("izin"))
+        {
+            if (konu.Contains("hastalık raporu") || konu.Contains("hastalık") || konu.Contains("vefat") || konu.Contains("evlilik") || konu.Contains("doğum"))
+            {
+                return (AIAction.OtomatikOnayla, 0.95,
+                    $"İzin talebinde yasal/öncelikli mazeret tespit edildi. Güven skoru yüksek, otomatik onay verildi.");
+            }
+            else
+            {
+                return (AIAction.ManuelInceleme, 0.40,
+                    $"İzin talebi standart dışı veya özel mazeret belirtilmemiş. Yönetici onayı gerekli olduğu için manuel incelemeye yönlendirildi.");
+            }
+        }
 
         // Kural 1: Düşük tutar → otomatik onay
         if (tutar > 0 && tutar <= OtomatikOnayEsik)
