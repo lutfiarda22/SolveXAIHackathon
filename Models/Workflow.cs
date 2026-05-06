@@ -25,4 +25,7 @@ public class Workflow
     public DateTime OlusturmaTarihi { get; set; } = DateTime.Now;
 
     public bool Aktif { get; set; } = true;
+
+    /// <summary>Oluşturma sırasında girilen ek veriler (Tutar, Departman, Konu vb.)</summary>
+    public Dictionary<string, string> FormVerisi { get; set; } = new();
 }

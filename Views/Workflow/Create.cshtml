@@ -5,28 +5,65 @@
 
 <div class="mb-4">
     <h2 style="font-weight: 700; margin-bottom: 0.2rem;">➕ Yeni İş Akışı Oluştur</h2>
-    <p class="text-muted" style="margin:0;">Sisteme yeni bir süreç şablonu tanımlayın.</p>
+    <p class="text-muted" style="margin:0;">Sisteme yeni bir sipariş, talep veya onay süreci başlatın.</p>
 </div>
 
 <div class="row">
     <div class="col-md-8">
         <div class="fm-card">
             <form asp-action="Create" method="post">
+
                 <div class="fm-form-group">
-                    <label class="fm-label" asp-for="Ad">İş Akışı Adı</label>
-                    <input asp-for="Ad" class="fm-input" placeholder="Örn: Yıllık İzin Süreci" required />
-                </div>
-                
-                <div class="fm-form-group">
-                    <label class="fm-label" asp-for="Tetikleyici">Tetikleyici Durum</label>
-                    <input asp-for="Tetikleyici" class="fm-input" placeholder="Örn: Personel izin talep ettiğinde" />
+                    <label class="fm-label" asp-for="Ad">İş Akışı / Talep Adı</label>
+                    <input asp-for="Ad" class="fm-input" placeholder="Örn: Laptop Satınalma Talebi, Yıllık İzin, Fatura Onayı" required />
                 </div>
 
                 <div class="fm-form-group">
-                    <label class="fm-label" asp-for="Aciklama">Açıklama</label>
-                    <textarea asp-for="Aciklama" class="fm-textarea" rows="4" placeholder="Sürecin detaylı açıklaması..."></textarea>
+                    <label class="fm-label">Konu / Kategori</label>
+                    <select name="Konu" id="konuSelect" class="fm-input" onchange="konuDegisti()">
+                        <option value="Satınalma">Satınalma Talebi</option>
+                        <option value="Sipariş">Sipariş Yönetimi</option>
+                        <option value="Fatura">Fatura Onayı</option>
+                        <option value="İade">İade / Değişim</option>
+                        <option value="İzin">İzin Talebi</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
                 </div>
-                
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="fm-form-group">
+                            <label class="fm-label">Departman</label>
+                            <select name="Departman" class="fm-input" required>
+                                <option value="">Departman Seçiniz</option>
+                                <option value="Bilişim">Bilişim / IT</option>
+                                <option value="Finans">Finans / Muhasebe</option>
+                                <option value="Satış">Satış / Pazarlama</option>
+                                <option value="İnsan Kaynakları">İnsan Kaynakları</option>
+                                <option value="Lojistik">Lojistik / Depo</option>
+                                <option value="Hukuk">Hukuk</option>
+                                <option value="Yönetim">Üst Yönetim</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="tutarAlani">
+                        <div class="fm-form-group">
+                            <label class="fm-label">Tutar (₺)</label>
+                            <input type="number" name="Tutar" class="fm-input" placeholder="Örn: 15000" min="0" step="0.01" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fm-form-group">
+                    <label class="fm-label" asp-for="Tetikleyici">Tetikleyici Durum</label>
+                    <input asp-for="Tetikleyici" class="fm-input" placeholder="Örn: Personel talep oluşturduğunda" />
+                </div>
+
+                <div class="fm-form-group">
+                    <label class="fm-label" asp-for="Aciklama">Açıklama / Gerekçe</label>
+                    <textarea asp-for="Aciklama" class="fm-textarea" rows="3" placeholder="Talebin detaylı açıklaması..."></textarea>
+                </div>
+
                 <div class="fm-form-group">
                     <label class="fm-label">Durum</label>
                     <div class="d-flex align-center gap-2">
@@ -36,21 +73,51 @@
                 </div>
 
                 <hr class="fm-divider" />
-                
+
                 <div class="d-flex justify-between">
                     <a asp-action="Index" class="fm-btn fm-btn-secondary">İptal</a>
-                    <button type="submit" class="fm-btn fm-btn-primary">Kaydet ve Devam Et</button>
+                    <button type="submit" class="fm-btn fm-btn-primary">🚀 Talebi Oluştur ve Başlat</button>
                 </div>
             </form>
         </div>
     </div>
     <div class="col-md-4">
         <div class="fm-card">
+            <h5 class="fm-card-title">🤖 AI Nasıl Çalışır?</h5>
+            <p class="fm-card-text" style="font-size: 0.85rem;">
+                Talebi oluşturduktan sonra AI Karar Motoru otomatik olarak devreye girer:
+            </p>
+            <div class="fm-feature-list" style="margin-top: 10px;">
+                <div class="fm-feature-item" style="padding: 8px 12px; font-size: 0.82rem;">
+                    ✅ <strong>₺5.000 altı</strong> → Otomatik onay
+                </div>
+                <div class="fm-feature-item" style="padding: 8px 12px; font-size: 0.82rem;">
+                    ⚠️ <strong>₺5.000 – ₺50.000</strong> → Güven skoruna göre
+                </div>
+                <div class="fm-feature-item" style="padding: 8px 12px; font-size: 0.82rem;">
+                    🔴 <strong>₺50.000 üstü</strong> → Manuel onay zorunlu
+                </div>
+            </div>
+        </div>
+        <div class="fm-card mt-3">
             <h5 class="fm-card-title">💡 İpucu</h5>
-            <p class="fm-card-text">
-                İş akışını oluşturduktan sonra detay sayfasına giderek süreç adımlarını (servisler, onay mekanizmaları) ekleyebilirsiniz. 
-                AI motoru bu adımları analiz ederek rotasyon yapacaktır.
+            <p class="fm-card-text" style="font-size: 0.85rem;">
+                Departman ve tutar bilgisi AI'ın daha doğru karar vermesini sağlar. 
+                Süreç başladıktan sonra ilgili yöneticilere otomatik görev atanır.
             </p>
         </div>
     </div>
 </div>
+
+<script>
+function konuDegisti() {
+    var konu = document.getElementById('konuSelect').value;
+    var tutarAlani = document.getElementById('tutarAlani');
+    if (konu === 'İzin' || konu === 'Diğer') {
+        tutarAlani.style.display = 'none';
+    } else {
+        tutarAlani.style.display = '';
+    }
+}
+konuDegisti();
+</script>

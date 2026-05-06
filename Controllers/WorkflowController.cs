@@ -26,12 +26,18 @@ public class WorkflowController : Controller
     }
 
     [HttpPost]
-    public IActionResult Create(Workflow workflow)
+    public IActionResult Create(Workflow workflow, string? Departman, string? Tutar, string? Konu)
     {
         if (ModelState.IsValid)
         {
+            // Form verilerini workflow'a ekle (AI karar motoru için)
+            workflow.FormVerisi = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(Departman)) workflow.FormVerisi["Departman"] = Departman;
+            if (!string.IsNullOrEmpty(Tutar)) workflow.FormVerisi["Tutar"] = Tutar;
+            if (!string.IsNullOrEmpty(Konu)) workflow.FormVerisi["Konu"] = Konu;
+
             _isAkisiServisi.IsAkisiOlustur(workflow);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details), new { id = workflow.Id });
         }
         return View(workflow);
     }
@@ -49,16 +55,18 @@ public class WorkflowController : Controller
     [HttpPost]
     public IActionResult Run(string id)
     {
-        var formVerisi = new Dictionary<string, string>
-        {
-            { "Otomatik", "Demo" } // Hackathon için varsayılan form verisi
-        };
+        var workflow = _isAkisiServisi.IsAkisiGetir(id);
+        if (workflow == null) return NotFound();
+
+        // Workflow'dan gelen gerçek form verisini kullan (Tutar, Departman, Konu)
+        var formVerisi = workflow.FormVerisi ?? new Dictionary<string, string>();
+
         var instance = _isAkisiServisi.IsAkisiBaslat(id, "USR-004", formVerisi);
 
         // Akış başladığında ilk adımı otomatik işletmeyi deneriz
         _isAkisiServisi.AdimiIslet(instance.Id).Wait();
 
-        return RedirectToAction(nameof(Index)); // veya Dashboard
+        return RedirectToAction(nameof(Details), new { id = id });
     }
 
     [HttpGet]
@@ -69,18 +77,22 @@ public class WorkflowController : Controller
 
         ViewBag.WorkflowId = id;
         ViewBag.WorkflowName = workflow.Ad;
+        ViewBag.Konu = workflow.FormVerisi?.GetValueOrDefault("Konu", "Diğer") ?? "Diğer";
         return View(new WorkflowStep());
     }
 
     [HttpPost]
     public IActionResult AddStep(string id, WorkflowStep adim)
     {
-        if (ModelState.IsValid)
+        if (!string.IsNullOrEmpty(adim.Ad))
         {
             _isAkisiServisi.AdimEkle(id, adim);
             return RedirectToAction(nameof(Details), new { id = id });
         }
+
+        var workflow = _isAkisiServisi.IsAkisiGetir(id);
         ViewBag.WorkflowId = id;
+        ViewBag.WorkflowName = workflow?.Ad ?? "";
         return View(adim);
     }
 }
