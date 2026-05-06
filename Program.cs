@@ -12,19 +12,20 @@ namespace FlowMind
             // MVC servislerini ekle
             builder.Services.AddControllersWithViews();
 
+            // Merkezi bellek içi veri deposu (Singleton — tüm uygulama boyunca tek örnek)
+            builder.Services.AddSingleton<InMemoryDataStore>();
+
             // İş akışı yönetim servisi
             builder.Services.AddScoped<IIsAkisiServisi, IsAkisiServisi>();
 
             // AI Karar Motoru servisi
             builder.Services.AddScoped<IKararMotoru, KararMotoru>();
 
-            // TODO: Veritabanı bağlantısı ileride buraya eklenecek
-            // builder.Services.AddDbContext<FlowMindDbContext>(...);
-
-            // TODO: Entegrasyon servisleri (CRM, ERP, İletişim)
-            // builder.Services.AddScoped<IEntegrasyonServisi, EntegrasyonServisi>();
-
             var app = builder.Build();
+
+            // Başlangıç verilerini yükle
+            var dataStore = app.Services.GetRequiredService<InMemoryDataStore>();
+            dataStore.SeedData();
 
             // ===== HTTP İstek Pipeline Yapılandırması =====
             if (!app.Environment.IsDevelopment())
