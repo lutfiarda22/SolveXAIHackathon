@@ -5,64 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="FlowMind - AI destekli iş akışı orkestrasyon platformu" />
     <title>@ViewData["Title"] - FlowMind</title>
-    <script type="importmap"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/FlowMind.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-dark fm-navbar">
-            <div class="container-fluid">
-                <a class="navbar-brand fm-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span class="fm-brand-icon">⚡</span> FlowMind
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" 
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Navigasyonu aç/kapat">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link fm-nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                🏠 Ana Panel
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fm-nav-link" asp-area="" asp-controller="Home" asp-action="Hakkinda">
-                                ℹ️ Hakkında
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="fm-status-badge">
-                        <span class="fm-status-dot"></span> Sistem Aktif
-                    </div>
+    <!-- Sidebar -->
+    <aside class="fm-sidebar" id="sidebar">
+        <div class="fm-sidebar-header">
+            <a href="/" class="fm-logo">
+                <span class="fm-logo-icon">⚡</span>
+                <span class="fm-logo-text">FlowMind</span>
+            </a>
+        </div>
+
+        <nav class="fm-sidebar-nav">
+            <span class="fm-nav-section-title">Ana Menü</span>
+
+            <a href="/Home/Index" class="fm-sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" id="nav-dashboard">
+                <span class="fm-sidebar-icon">📊</span>
+                <span class="fm-sidebar-label">Dashboard</span>
+            </a>
+
+            <a href="/Workflow/Index" class="fm-sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Workflow" ? "active" : "")" id="nav-workflows">
+                <span class="fm-sidebar-icon">🔄</span>
+                <span class="fm-sidebar-label">İş Akışları</span>
+            </a>
+
+            <a href="/Task/Index" class="fm-sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Task" ? "active" : "")" id="nav-tasks">
+                <span class="fm-sidebar-icon">📋</span>
+                <span class="fm-sidebar-label">Görevler</span>
+            </a>
+
+            <span class="fm-nav-section-title">Sistem</span>
+
+            <a href="/Home/Hakkinda" class="fm-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Hakkinda" ? "active" : "")" id="nav-about">
+                <span class="fm-sidebar-icon">ℹ️</span>
+                <span class="fm-sidebar-label">Hakkında</span>
+            </a>
+        </nav>
+
+        <div class="fm-sidebar-footer">
+            <div class="fm-sidebar-status">
+                <span class="fm-pulse-dot"></span>
+                <span>Sistem Aktif</span>
+            </div>
+            <span class="fm-sidebar-version">v1.0.0</span>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="fm-main-wrapper">
+        <!-- Top Header -->
+        <header class="fm-topbar" id="topbar">
+            <button class="fm-hamburger" id="sidebarToggle" aria-label="Menüyü aç/kapat">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1 class="fm-topbar-title">@ViewData["Title"]</h1>
+            <div class="fm-topbar-right">
+                <div class="fm-topbar-badge">
+                    <span class="fm-pulse-dot"></span>
+                    AI Motor Aktif
                 </div>
             </div>
-        </nav>
-    </header>
+        </header>
 
-    <div class="container-fluid fm-main-container">
-        <main role="main" class="pb-3">
+        <!-- Content Area -->
+        <main class="fm-content" role="main">
             @RenderBody()
         </main>
+
+        <!-- Footer -->
+        <footer class="fm-footer">
+            <span>&copy; 2026 FlowMind - AI Orkestratör</span>
+            <span class="fm-footer-version">Hackathon Edition</span>
+        </footer>
     </div>
 
-    <footer class="fm-footer">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
-                <span>&copy; 2026 FlowMind - AI Orkestratör</span>
-                <span class="fm-footer-version">v1.0.0 | Hackathon Edition</span>
-            </div>
-        </div>
-    </footer>
+    <!-- Overlay for mobile sidebar -->
+    <div class="fm-overlay" id="sidebarOverlay"></div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebarToggle');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
