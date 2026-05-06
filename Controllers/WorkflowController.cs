@@ -19,6 +19,7 @@ public class WorkflowController : Controller
         return View(workflows);
     }
 
+    /// <summary>Yeni iş akışı oluşturma formu (Issue #8)</summary>
     public IActionResult Create()
     {
         return View(new Workflow());
@@ -35,6 +36,7 @@ public class WorkflowController : Controller
         return View(workflow);
     }
 
+    /// <summary>İş akışı detaylarını gösterir (Issue #8)</summary>
     public IActionResult Details(string id)
     {
         var workflow = _isAkisiServisi.IsAkisiGetir(id);
@@ -43,6 +45,7 @@ public class WorkflowController : Controller
         return View(workflow);
     }
 
+    /// <summary>Belirli bir iş akışını başlatır (Issue #8)</summary>
     [HttpPost]
     public IActionResult Run(string id)
     {
