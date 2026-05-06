@@ -1,3 +1,6 @@
+using FlowMind.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace FlowMind.Services
 {
     /// <summary>
@@ -6,14 +9,14 @@ namespace FlowMind.Services
     /// </summary>
     public class IsAkisiServisi : IIsAkisiServisi
     {
-        private readonly InMemoryDataStore _store;
+        private readonly FlowMindDbContext _context;
         private readonly ILogger<IsAkisiServisi> _logger;
         private readonly AIDecisionEngine _aiDecisionEngine;
         private readonly MockIntegrationService _integrationService;
 
-        public IsAkisiServisi(InMemoryDataStore store, ILogger<IsAkisiServisi> logger, AIDecisionEngine aiDecisionEngine, MockIntegrationService integrationService)
+        public IsAkisiServisi(FlowMindDbContext context, ILogger<IsAkisiServisi> logger, AIDecisionEngine aiDecisionEngine, MockIntegrationService integrationService)
         {
-            _store = store;
+            _context = context;
             _logger = logger;
             _aiDecisionEngine = aiDecisionEngine;
             _integrationService = integrationService;
@@ -21,17 +24,17 @@ namespace FlowMind.Services
 
         public int ToplamIsAkisiSayisi()
         {
-            return _store.Workflows.Count;
+            return _context.Workflows.Count();
         }
 
         public int AktifIsAkisiSayisi()
         {
-            return _store.WorkflowInstances.Values.Count(i => i.Durum == Models.WorkflowStatus.Calisıyor);
+            return _context.WorkflowInstances.Count(i => i.Durum == Models.WorkflowStatus.Calisıyor);
         }
 
         public int TamamlananIsAkisiSayisi()
         {
-            return _store.WorkflowInstances.Values.Count(i => i.Durum == Models.WorkflowStatus.Tamamlandı);
+            return _context.WorkflowInstances.Count(i => i.Durum == Models.WorkflowStatus.Tamamlandı);
         }
 
         public string SistemDurumuOzeti()
@@ -42,12 +45,12 @@ namespace FlowMind.Services
 
         public List<FlowMind.Models.Workflow> TumIsAkislari()
         {
-            return _store.GetAll(_store.Workflows).OrderByDescending(w => w.OlusturmaTarihi).ToList();
+            return _context.Workflows.Include(w => w.Adimlar).OrderByDescending(w => w.OlusturmaTarihi).ToList();
         }
 
         public FlowMind.Models.Workflow? IsAkisiGetir(string id)
         {
-            return _store.Get(_store.Workflows, id);
+            return _context.Workflows.Include(w => w.Adimlar).FirstOrDefault(w => w.Id == id);
         }
 
         public FlowMind.Models.Workflow IsAkisiOlustur(FlowMind.Models.Workflow workflow)
@@ -65,7 +68,8 @@ namespace FlowMind.Services
                 }
             }
 
-            _store.Workflows.TryAdd(workflow.Id, workflow);
+            _context.Workflows.Add(workflow);
+            _context.SaveChanges();
             _logger.LogInformation("Yeni iş akışı oluşturuldu: {Id} - {Ad}", workflow.Id, workflow.Ad);
 
             return workflow;
@@ -73,7 +77,7 @@ namespace FlowMind.Services
 
         public FlowMind.Models.WorkflowInstance IsAkisiBaslat(string workflowId, string baslatanId, Dictionary<string, string> formVerisi)
         {
-            var workflow = _store.Get(_store.Workflows, workflowId);
+            var workflow = _context.Workflows.FirstOrDefault(w => w.Id == workflowId);
             if (workflow == null) throw new Exception("İş akışı bulunamadı");
 
             var instance = new FlowMind.Models.WorkflowInstance
@@ -88,7 +92,8 @@ namespace FlowMind.Services
                 FormVerisi = formVerisi
             };
 
-            _store.WorkflowInstances.TryAdd(instance.Id, instance);
+            _context.WorkflowInstances.Add(instance);
+            _context.SaveChanges();
             _logger.LogInformation("İş akışı başlatıldı: {InstanceId} ({WorkflowAdi})", instance.Id, instance.WorkflowAdi);
 
             return instance;
@@ -96,24 +101,25 @@ namespace FlowMind.Services
 
         public void AdimEkle(string workflowId, FlowMind.Models.WorkflowStep adim)
         {
-            var workflow = _store.Get(_store.Workflows, workflowId);
+            var workflow = _context.Workflows.Include(w => w.Adimlar).FirstOrDefault(w => w.Id == workflowId);
             if (workflow != null)
             {
                 if (workflow.Adimlar == null) workflow.Adimlar = new List<FlowMind.Models.WorkflowStep>();
                 adim.Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}";
                 adim.Sira = workflow.Adimlar.Count + 1; // En sona ekle
                 workflow.Adimlar.Add(adim);
+                _context.SaveChanges();
                 _logger.LogInformation("İş akışına yeni adım eklendi: {WorkflowId} -> {AdimAd}", workflowId, adim.Ad);
             }
         }
 
         public async Task<FlowMind.Models.AIDecision?> AdimiIslet(string instanceId)
         {
-            var instance = _store.Get(_store.WorkflowInstances, instanceId);
+            var instance = _context.WorkflowInstances.FirstOrDefault(i => i.Id == instanceId);
             if (instance == null || instance.Durum != FlowMind.Models.WorkflowStatus.Calisıyor)
                 return null;
 
-            var workflow = _store.Get(_store.Workflows, instance.WorkflowId);
+            var workflow = _context.Workflows.Include(w => w.Adimlar).FirstOrDefault(w => w.Id == instance.WorkflowId);
             if (workflow == null || workflow.Adimlar == null) return null;
 
             var currentStep = workflow.Adimlar.FirstOrDefault(s => s.Sira == instance.MevcutAdim);
@@ -122,6 +128,7 @@ namespace FlowMind.Services
                 // Akış bitti
                 instance.Durum = FlowMind.Models.WorkflowStatus.Tamamlandı;
                 instance.BitisTarihi = DateTime.Now;
+                await _context.SaveChangesAsync();
                 return null;
             }
 
@@ -162,7 +169,7 @@ namespace FlowMind.Services
                         YZTarafindan = true,
                         OlusturmaTarihi = DateTime.Now
                     };
-                    _store.Tasks.TryAdd(task.Id, task);
+                    _context.Tasks.Add(task);
                     // Beklemeye alıyoruz
                     instance.Durum = FlowMind.Models.WorkflowStatus.Beklemede;
                     break;
@@ -176,6 +183,7 @@ namespace FlowMind.Services
                     break;
             }
 
+            await _context.SaveChangesAsync();
             return decision;
         }
     }

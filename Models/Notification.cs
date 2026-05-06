@@ -5,6 +5,7 @@ namespace FlowMind.Models;
 /// <summary>Uygulama içi bildirim</summary>
 public class Notification
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     /// <summary>Bildirimin gönderildiği kullanıcı</summary>

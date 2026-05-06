@@ -1,4 +1,5 @@
 using FlowMind.Models;
+using FlowMind.Data;
 using FlowMind.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -83,8 +84,8 @@ public class WorkflowController : Controller
         FlowMind.Models.AIDecision? decision = null;
         if (!string.IsNullOrEmpty(decisionId))
         {
-            var store = HttpContext.RequestServices.GetRequiredService<InMemoryDataStore>();
-            decision = store.Get(store.AIDecisions, decisionId);
+            var context = HttpContext.RequestServices.GetRequiredService<FlowMindDbContext>();
+            decision = context.AIDecisions.FirstOrDefault(d => d.Id == decisionId);
         }
         ViewBag.Decision = decision;
 

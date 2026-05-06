@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlowMind.Models;
 
 /// <summary>Kullanıcıya atanan görev — onay, inceleme veya veri girişi</summary>
 public class TaskItem
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     [Required, MaxLength(200)]
@@ -49,6 +51,7 @@ public class TaskItem
     public DateTime? SonTarih { get; set; }
 
     /// <summary>Süre aşımı var mı</summary>
+    [NotMapped]
     public bool SuresiGecmis => SonTarih.HasValue && DateTime.Now > SonTarih.Value
                                 && Durum != Models.TaskStatus.Tamamlandı
                                 && Durum != Models.TaskStatus.Onaylandı;

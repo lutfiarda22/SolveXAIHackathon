@@ -5,7 +5,11 @@ namespace FlowMind.Models;
 /// <summary>İş akışı şablonundaki tek bir adım</summary>
 public class WorkflowStep
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
+
+    [Required]
+    public string WorkflowId { get; set; } = string.Empty;
 
     [Required, MaxLength(150)]
     public string Ad { get; set; } = string.Empty;

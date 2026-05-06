@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FlowMind.Data;
 using FlowMind.Models;
 
 namespace FlowMind.Services;
@@ -13,7 +14,7 @@ namespace FlowMind.Services;
 /// </summary>
 public class AIDecisionEngine
 {
-    private readonly InMemoryDataStore _store;
+    private readonly FlowMindDbContext _context;
     private readonly AuditService _audit;
     private readonly ILogger<AIDecisionEngine> _logger;
 
@@ -22,9 +23,9 @@ public class AIDecisionEngine
     private const decimal YuksekRiskEsik = 50000m;       // ₺50.000 üstü yüksek risk (High Risk)
     private const int AcilSaatEsik = 24;                 // 24 saat içinde son tarih = acil (Öncelik belirleme)
 
-    public AIDecisionEngine(InMemoryDataStore store, AuditService audit, ILogger<AIDecisionEngine> logger)
+    public AIDecisionEngine(FlowMindDbContext context, AuditService audit, ILogger<AIDecisionEngine> logger)
     {
-        _store = store;
+        _context = context;
         _audit = audit;
         _logger = logger;
     }
@@ -62,8 +63,9 @@ public class AIDecisionEngine
         };
 
         // Depoya kaydet
-        _store.AIDecisions.TryAdd(karar.Id, karar);
+        _context.AIDecisions.Add(karar);
         instance.YZKararIds.Add(karar.Id);
+        _context.SaveChanges();
 
         // Denetim kaydı
         _audit.YZKaydi(
@@ -125,7 +127,7 @@ public class AIDecisionEngine
         if (step.YZAtlayabilir)
         {
             // Mevcut entegrasyon loglarını kontrol et
-            var mevcutLog = _store.GetAll(_store.IntegrationLogs)
+            var mevcutLog = _context.IntegrationLogs
                 .Any(l => l.WorkflowInstanceId == instance.Id
                        && l.HedefSistem == step.EntegrasyonTuru
                        && l.Durum == IntegrationStatus.Basarili);
@@ -183,13 +185,13 @@ public class AIDecisionEngine
     /// <summary>Tüm YZ kararlarını getirir</summary>
     public List<AIDecision> TumKararlar()
     {
-        return _store.GetAll(_store.AIDecisions).OrderByDescending(d => d.KararZamani).ToList();
+        return _context.AIDecisions.OrderByDescending(d => d.KararZamani).ToList();
     }
 
     /// <summary>Belirli iş akışı için kararları getirir</summary>
     public List<AIDecision> IsAkisiKararlari(string workflowInstanceId)
     {
-        return _store.GetAll(_store.AIDecisions)
+        return _context.AIDecisions
             .Where(d => d.WorkflowInstanceId == workflowInstanceId)
             .OrderByDescending(d => d.KararZamani).ToList();
     }
@@ -197,7 +199,7 @@ public class AIDecisionEngine
     /// <summary>Otomasyonu oranını hesaplar</summary>
     public double OtomasyonOrani()
     {
-        var kararlar = _store.GetAll(_store.AIDecisions);
+        var kararlar = _context.AIDecisions.ToList();
         if (!kararlar.Any()) return 0;
 
         var otomatik = kararlar.Count(k =>
@@ -210,7 +212,7 @@ public class AIDecisionEngine
     /// <summary>Ortalama güven skorunu hesaplar</summary>
     public double OrtalamaGuvenSkoru()
     {
-        var kararlar = _store.GetAll(_store.AIDecisions);
+        var kararlar = _context.AIDecisions.ToList();
         return kararlar.Any() ? kararlar.Average(k => k.ConfidenceScore) : 0;
     }
 }

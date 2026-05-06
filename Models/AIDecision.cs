@@ -5,6 +5,7 @@ namespace FlowMind.Models;
 /// <summary>YZ Karar Motoru tarafından alınan bir karar — tam izlenebilirlik</summary>
 public class AIDecision
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     /// <summary>Hangi iş akışı örneği için</summary>

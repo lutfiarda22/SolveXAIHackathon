@@ -1,4 +1,6 @@
 using FlowMind.Services;
+using FlowMind.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlowMind
 {
@@ -12,8 +14,9 @@ namespace FlowMind
             // MVC servislerini ekle
             builder.Services.AddControllersWithViews();
 
-            // Merkezi bellek içi veri deposu (Singleton — tüm uygulama boyunca tek örnek)
-            builder.Services.AddSingleton<InMemoryDataStore>();
+            // Veritabanı bağlamı (EF Core)
+            builder.Services.AddDbContext<FlowMindDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // İş akışı yönetim servisi
             builder.Services.AddScoped<IIsAkisiServisi, IsAkisiServisi>();
@@ -35,9 +38,12 @@ namespace FlowMind
 
             var app = builder.Build();
 
-            // Başlangıç verilerini yükle
-            var dataStore = app.Services.GetRequiredService<InMemoryDataStore>();
-            dataStore.SeedData();
+            // Veritabanını oluştur ve seed dataları ekle
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<FlowMindDbContext>();
+                db.Database.EnsureCreated();
+            }
 
             // ===== HTTP İstek Pipeline Yapılandırması =====
             if (!app.Environment.IsDevelopment())

@@ -5,6 +5,7 @@ namespace FlowMind.Models;
 /// <summary>İş akışı şablonu — tekrar kullanılabilir süreç tanımı</summary>
 public class Workflow
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     [Required, MaxLength(150)]

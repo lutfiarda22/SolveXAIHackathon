@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlowMind.Models;
 
 /// <summary>Sistem kullanıcısı — çalışan, yönetici, finans vb.</summary>
 public class User
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     [Required, MaxLength(100)]
@@ -24,5 +26,6 @@ public class User
     public DateTime KayitTarihi { get; set; } = DateTime.Now;
 
     // Hesaplanmış alan
+    [NotMapped]
     public string TamAd => $"{Ad} {Soyad}";
 }

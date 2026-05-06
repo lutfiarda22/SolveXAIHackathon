@@ -5,6 +5,7 @@ namespace FlowMind.Models;
 /// <summary>Denetim kaydı — kim, ne yaptı, ne zaman</summary>
 public class AuditLog
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     /// <summary>İşlemi yapan kullanıcı (veya "SISTEM" / "YZ")</summary>

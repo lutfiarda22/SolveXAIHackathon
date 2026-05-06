@@ -5,6 +5,7 @@ namespace FlowMind.Models;
 /// <summary>Sahte API entegrasyon çağrı kaydı</summary>
 public class IntegrationLog
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     /// <summary>Hangi iş akışı örneği için</summary>

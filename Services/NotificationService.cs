@@ -1,4 +1,5 @@
 using FlowMind.Models;
+using FlowMind.Data;
 
 namespace FlowMind.Services;
 
@@ -9,12 +10,12 @@ namespace FlowMind.Services;
 /// </summary>
 public class NotificationService
 {
-    private readonly InMemoryDataStore _store;
+    private readonly FlowMindDbContext _context;
     private readonly ILogger<NotificationService> _logger;
 
-    public NotificationService(InMemoryDataStore store, ILogger<NotificationService> logger)
+    public NotificationService(FlowMindDbContext context, ILogger<NotificationService> logger)
     {
-        _store = store;
+        _context = context;
         _logger = logger;
     }
 
@@ -32,7 +33,8 @@ public class NotificationService
             OlusturmaTarihi = DateTime.Now
         };
 
-        _store.Notifications.TryAdd(bildirim.Id, bildirim);
+        _context.Notifications.Add(bildirim);
+        _context.SaveChanges();
         _logger.LogInformation("[NOTIFICATION] {Baslik} → Kullanıcı: {KullaniciId}", baslik, kullaniciId);
 
         return bildirim;
@@ -41,7 +43,7 @@ public class NotificationService
     /// <summary>Bir kullanıcının tüm bildirimlerini getirir (en yeni önce)</summary>
     public List<Notification> KullaniciBildirimleri(string kullaniciId)
     {
-        return _store.GetAll(_store.Notifications)
+        return _context.Notifications
             .Where(n => n.KullaniciId == kullaniciId)
             .OrderByDescending(n => n.OlusturmaTarihi)
             .ToList();
@@ -50,17 +52,18 @@ public class NotificationService
     /// <summary>Okunmamış bildirim sayısını döndürür</summary>
     public int OkunmamisSayisi(string kullaniciId)
     {
-        return _store.GetAll(_store.Notifications)
+        return _context.Notifications
             .Count(n => n.KullaniciId == kullaniciId && !n.Okundu);
     }
 
     /// <summary>Bildirimi okundu olarak işaretler</summary>
     public bool OkunduIsaretle(string bildirimId)
     {
-        var bildirim = _store.Get(_store.Notifications, bildirimId);
+        var bildirim = _context.Notifications.FirstOrDefault(n => n.Id == bildirimId);
         if (bildirim != null)
         {
             bildirim.Okundu = true;
+            _context.SaveChanges();
             return true;
         }
         return false;
@@ -71,11 +74,12 @@ public class NotificationService
     {
         var bildirimler = KullaniciBildirimleri(kullaniciId);
         foreach (var b in bildirimler) b.Okundu = true;
+        _context.SaveChanges();
     }
 
     /// <summary>Tüm bildirimleri getirir</summary>
     public List<Notification> TumBildirimler()
     {
-        return _store.GetAll(_store.Notifications).OrderByDescending(n => n.OlusturmaTarihi).ToList();
+        return _context.Notifications.OrderByDescending(n => n.OlusturmaTarihi).ToList();
     }
 }

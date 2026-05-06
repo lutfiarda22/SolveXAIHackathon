@@ -1,4 +1,5 @@
 using FlowMind.Models;
+using FlowMind.Data;
 
 namespace FlowMind.Services;
 
@@ -9,13 +10,13 @@ namespace FlowMind.Services;
 /// </summary>
 public class MockIntegrationService
 {
-    private readonly InMemoryDataStore _store;
+    private readonly FlowMindDbContext _context;
     private readonly ILogger<MockIntegrationService> _logger;
     private readonly Random _random = new();
 
-    public MockIntegrationService(InMemoryDataStore store, ILogger<MockIntegrationService> logger)
+    public MockIntegrationService(FlowMindDbContext context, ILogger<MockIntegrationService> logger)
     {
-        _store = store;
+        _context = context;
         _logger = logger;
     }
 
@@ -117,7 +118,8 @@ public class MockIntegrationService
             Zaman = DateTime.Now
         };
 
-        _store.IntegrationLogs.TryAdd(log.Id, log);
+        _context.IntegrationLogs.Add(log);
+        await _context.SaveChangesAsync();
 
         _logger.LogInformation("[INTEGRATION] {Hedef}.{Islem} | Durum: {Durum} | Süre: {Sure}ms",
             hedef, islem, log.Durum, log.SureMs);
@@ -128,13 +130,13 @@ public class MockIntegrationService
     /// <summary>Tüm entegrasyon loglarını getirir</summary>
     public List<IntegrationLog> TumLoglar()
     {
-        return _store.GetAll(_store.IntegrationLogs).OrderByDescending(l => l.Zaman).ToList();
+        return _context.IntegrationLogs.OrderByDescending(l => l.Zaman).ToList();
     }
 
     /// <summary>Belirli bir iş akışı için logları getirir</summary>
     public List<IntegrationLog> IsAkisiLoglari(string workflowInstanceId)
     {
-        return _store.GetAll(_store.IntegrationLogs)
+        return _context.IntegrationLogs
             .Where(l => l.WorkflowInstanceId == workflowInstanceId)
             .OrderByDescending(l => l.Zaman)
             .ToList();

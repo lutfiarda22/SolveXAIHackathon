@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FlowMind.Models;
 
 /// <summary>Çalışan bir iş akışı örneği — şablondan türetilir</summary>
 public class WorkflowInstance
 {
+    [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
 
     /// <summary>Hangi şablondan oluşturuldu</summary>
@@ -38,6 +40,7 @@ public class WorkflowInstance
     public int OtomatikTamamlanan { get; set; } = 0;
 
     /// <summary>Toplam geçen süre (dakika)</summary>
+    [NotMapped]
     public double? ToplamSureDk => BitisTarihi.HasValue
         ? (BitisTarihi.Value - BaslangicTarihi).TotalMinutes
         : null;

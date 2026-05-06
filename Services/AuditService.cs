@@ -1,4 +1,5 @@
 using FlowMind.Models;
+using FlowMind.Data;
 
 namespace FlowMind.Services;
 
@@ -9,12 +10,12 @@ namespace FlowMind.Services;
 /// </summary>
 public class AuditService
 {
-    private readonly InMemoryDataStore _store;
+    private readonly FlowMindDbContext _context;
     private readonly ILogger<AuditService> _logger;
 
-    public AuditService(InMemoryDataStore store, ILogger<AuditService> logger)
+    public AuditService(FlowMindDbContext context, ILogger<AuditService> logger)
     {
-        _store = store;
+        _context = context;
         _logger = logger;
     }
 
@@ -34,7 +35,8 @@ public class AuditService
             Zaman = DateTime.Now
         };
 
-        _store.AuditLogs.TryAdd(log.Id, log);
+        _context.AuditLogs.Add(log);
+        _context.SaveChanges();
         _logger.LogInformation("[AUDIT] {Eylem} | {HedefTur}:{HedefId} | Kullanıcı: {Kullanici} | YZ: {YZ}",
             eylem, hedefTur, hedefId, kullaniciAd, yzTetikledi);
 
@@ -50,13 +52,13 @@ public class AuditService
     /// <summary>Tüm denetim kayıtlarını getirir (en yeni önce)</summary>
     public List<AuditLog> TumKayitlar()
     {
-        return _store.GetAll(_store.AuditLogs).OrderByDescending(a => a.Zaman).ToList();
+        return _context.AuditLogs.OrderByDescending(a => a.Zaman).ToList();
     }
 
     /// <summary>Belirli bir hedefe ait kayıtları getirir</summary>
     public List<AuditLog> HedefKayitlari(string hedefId)
     {
-        return _store.GetAll(_store.AuditLogs)
+        return _context.AuditLogs
             .Where(a => a.HedefId == hedefId)
             .OrderByDescending(a => a.Zaman)
             .ToList();
@@ -65,7 +67,7 @@ public class AuditService
     /// <summary>YZ tarafından tetiklenen kayıtları getirir</summary>
     public List<AuditLog> YZKayitlari()
     {
-        return _store.GetAll(_store.AuditLogs)
+        return _context.AuditLogs
             .Where(a => a.YZTetikledi)
             .OrderByDescending(a => a.Zaman)
             .ToList();

@@ -1,4 +1,5 @@
 using FlowMind.Models;
+using FlowMind.Data;
 using FlowMind.Services;
 using Microsoft.AspNetCore.Mvc;
 using TaskStatus = FlowMind.Models.TaskStatus;
@@ -7,18 +8,18 @@ namespace FlowMind.Controllers;
 
 public class TaskController : Controller
 {
-    private readonly InMemoryDataStore _store;
+    private readonly FlowMindDbContext _context;
     private readonly AuditService _auditService;
 
-    public TaskController(InMemoryDataStore store, AuditService auditService)
+    public TaskController(FlowMindDbContext context, AuditService auditService)
     {
-        _store = store;
+        _context = context;
         _auditService = auditService;
     }
 
     public IActionResult Index()
     {
-        var tasks = _store.GetAll(_store.Tasks)
+        var tasks = _context.Tasks
             .OrderByDescending(t => t.Durum == TaskStatus.Atandı)
             .ThenByDescending(t => t.Oncelik)
             .ToList();
@@ -28,7 +29,7 @@ public class TaskController : Controller
     [HttpPost]
     public IActionResult Approve(string id, string? not)
     {
-        var task = _store.Get(_store.Tasks, id);
+        var task = _context.Tasks.FirstOrDefault(t => t.Id == id);
         if (task != null)
         {
             task.Durum = TaskStatus.Onaylandı;
@@ -42,6 +43,7 @@ public class TaskController : Controller
                 "TaskItem", task.Id,
                 $"Görev: {task.Baslik} | Akış: {task.WorkflowInstanceId}" +
                     (string.IsNullOrEmpty(not) ? "" : $" | Not: {not}"));
+            _context.SaveChanges();
         }
         return RedirectToAction(nameof(Index));
     }
@@ -49,7 +51,7 @@ public class TaskController : Controller
     [HttpPost]
     public IActionResult Reject(string id, string? not)
     {
-        var task = _store.Get(_store.Tasks, id);
+        var task = _context.Tasks.FirstOrDefault(t => t.Id == id);
         if (task != null)
         {
             task.Durum = TaskStatus.Reddedildi;
@@ -63,6 +65,7 @@ public class TaskController : Controller
                 "TaskItem", task.Id,
                 $"Görev: {task.Baslik} | Akış: {task.WorkflowInstanceId}" +
                     (string.IsNullOrEmpty(not) ? "" : $" | Not: {not}"));
+            _context.SaveChanges();
         }
         return RedirectToAction(nameof(Index));
     }
