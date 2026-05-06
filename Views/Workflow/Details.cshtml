@@ -1,0 +1,68 @@
+@model FlowMind.Models.Workflow
+@{
+    ViewData["Title"] = "İş Akışı Detay";
+}
+
+<div class="d-flex justify-between align-center mb-4">
+    <div>
+        <h2 style="font-weight: 700; margin-bottom: 0.2rem;">@Model.Ad</h2>
+        <p class="text-muted" style="margin:0;">ID: @Model.Id | Oluşturulma: @Model.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm")</p>
+    </div>
+    <div>
+        <a asp-action="Index" class="fm-btn fm-btn-secondary">Geri Dön</a>
+        <button class="fm-btn fm-btn-success">▶ Çalıştır</button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="fm-card">
+            <h5 class="fm-card-title">Genel Bilgiler</h5>
+            <hr class="fm-divider"/>
+            <div class="mb-3">
+                <span class="text-muted" style="font-size:0.75rem; text-transform:uppercase;">Tetikleyici</span>
+                <div><strong>@Model.Tetikleyici</strong></div>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted" style="font-size:0.75rem; text-transform:uppercase;">Açıklama</span>
+                <div style="font-size:0.88rem;">@(string.IsNullOrEmpty(Model.Aciklama) ? "-" : Model.Aciklama)</div>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted" style="font-size:0.75rem; text-transform:uppercase;">Durum</span>
+                <div>
+                    @if(Model.Aktif) { <span class="fm-badge fm-badge-success">Aktif</span> }
+                    else { <span class="fm-badge fm-badge-warning">Pasif</span> }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="fm-card">
+            <div class="d-flex justify-between align-center mb-3">
+                <h5 class="fm-card-title mb-0">Süreç Adımları (@Model.Adimlar.Count)</h5>
+                <button class="fm-btn fm-btn-sm fm-btn-primary">Adım Ekle</button>
+            </div>
+            
+            <div class="fm-feature-list">
+                @if (Model.Adimlar.Any())
+                {
+                    foreach (var adim in Model.Adimlar.OrderBy(a => a.Sira))
+                    {
+                        <div class="fm-feature-item d-flex justify-between align-center">
+                            <div>
+                                <span class="fm-badge fm-badge-info" style="margin-right: 10px;">Adım @adim.Sira</span>
+                                <strong>@adim.Ad</strong>
+                            </div>
+                            <span class="text-muted">Servis: @adim.ServisTuru</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="fm-empty p-3">Bu iş akışı için henüz bir adım tanımlanmamış.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

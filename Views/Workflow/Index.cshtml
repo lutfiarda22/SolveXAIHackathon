@@ -1,0 +1,65 @@
+@model IEnumerable<FlowMind.Models.Workflow>
+@{
+    ViewData["Title"] = "İş Akışları";
+}
+
+<div class="d-flex justify-between align-center mb-4">
+    <div>
+        <h2 style="font-weight: 700; margin-bottom: 0.2rem;">🔄 İş Akışları</h2>
+        <p class="text-muted" style="margin:0;">Sistemdeki tüm iş akışlarını görüntüleyin ve yönetin.</p>
+    </div>
+    <a asp-action="Create" class="fm-btn fm-btn-primary">
+        <span>➕ Yeni İş Akışı</span>
+    </a>
+</div>
+
+<div class="fm-card">
+    <div class="fm-table-wrap">
+        <table class="fm-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Akış Adı</th>
+                    <th>Tetikleyici</th>
+                    <th>Oluşturulma</th>
+                    <th>Durum</th>
+                    <th>Aksiyonlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>@item.Id</strong></td>
+                        <td>
+                            <div><strong>@item.Ad</strong></div>
+                            <div style="font-size: 0.75rem; color: var(--fm-text-secondary);">@item.Adimlar.Count Adım</div>
+                        </td>
+                        <td>@item.Tetikleyici</td>
+                        <td>@item.OlusturmaTarihi.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @if (item.Aktif)
+                            {
+                                <span class="fm-badge fm-badge-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="fm-badge fm-badge-warning">Pasif</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="fm-btn fm-btn-sm fm-btn-secondary">Detay</a>
+                        </td>
+                    </tr>
+                }
+                
+                @if(!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center p-3 text-muted">Kayıtlı iş akışı bulunamadı.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
