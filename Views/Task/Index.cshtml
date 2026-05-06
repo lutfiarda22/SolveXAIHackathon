@@ -1,0 +1,95 @@
+@model IEnumerable<FlowMind.Models.TaskItem>
+@{
+    ViewData["Title"] = "Görevler";
+}
+
+<div class="d-flex justify-between align-center mb-4">
+    <div>
+        <h2 style="font-weight: 700; margin-bottom: 0.2rem;">📋 Görevlerim</h2>
+        <p class="text-muted" style="margin:0;">İş akışlarından size atanan bekleyen ve geçmiş görevler.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var task in Model)
+    {
+        <div class="col-md-6">
+            <div class="fm-card @(task.Durum == FlowMind.Models.TaskStatus.Atandı ? "" : "opacity-75")">
+                <div class="d-flex justify-between align-center mb-3">
+                    <div class="d-flex gap-2 align-center">
+                        @if (task.Oncelik >= 4)
+                        {
+                            <span class="fm-badge fm-badge-danger">Kritik</span>
+                        }
+                        else if (task.Oncelik == 3)
+                        {
+                            <span class="fm-badge fm-badge-warning">Orta</span>
+                        }
+                        else
+                        {
+                            <span class="fm-badge fm-badge-info">Düşük</span>
+                        }
+
+                        @if (task.YZTarafindan)
+                        {
+                            <span class="fm-badge" style="background: rgba(99, 102, 241, 0.15); color: var(--fm-accent-light); border: 1px solid rgba(99, 102, 241, 0.2);">🤖 AI Yönlendirdi</span>
+                        }
+                        
+                        @if (task.SuresiGecmis)
+                        {
+                            <span class="fm-badge fm-badge-danger">⚠️ Süresi Geçti</span>
+                        }
+                    </div>
+                    
+                    <div>
+                        @if (task.Durum == FlowMind.Models.TaskStatus.Atandı)
+                        {
+                            <span class="text-muted" style="font-size:0.75rem;">Bekliyor</span>
+                        }
+                        else if (task.Durum == FlowMind.Models.TaskStatus.Onaylandı)
+                        {
+                            <span class="text-success" style="font-size:0.75rem; font-weight:bold;">✅ Onaylandı</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger" style="font-size:0.75rem; font-weight:bold;">❌ Reddedildi</span>
+                        }
+                    </div>
+                </div>
+
+                <h5 class="fm-card-title mb-2">@task.Baslik</h5>
+                <p class="fm-card-text" style="min-height: 40px;">@task.Aciklama</p>
+                
+                <div class="text-muted mb-3" style="font-size: 0.75rem;">
+                    Oluşturulma: @task.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm") | Akış ID: @task.WorkflowInstanceId
+                </div>
+
+                @if (task.Durum == FlowMind.Models.TaskStatus.Atandı)
+                {
+                    <hr class="fm-divider" />
+                    <div class="d-flex gap-2 mt-3">
+                        <form asp-action="Approve" method="post" style="flex: 1;">
+                            <input type="hidden" name="id" value="@task.Id" />
+                            <button type="submit" class="fm-btn fm-btn-success w-100">Onayla</button>
+                        </form>
+                        <form asp-action="Reject" method="post" style="flex: 1;">
+                            <input type="hidden" name="id" value="@task.Id" />
+                            <button type="submit" class="fm-btn fm-btn-danger w-100">Reddet</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="col-md-12">
+            <div class="fm-card text-center p-5">
+                <div class="fm-empty-icon">🎉</div>
+                <h5>Tebrikler!</h5>
+                <p class="text-muted">Bekleyen hiçbir göreviniz yok.</p>
+            </div>
+        </div>
+    }
+</div>
