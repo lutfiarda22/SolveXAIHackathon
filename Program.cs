@@ -21,6 +21,12 @@ namespace FlowMind
             // AI Karar Motoru servisi
             builder.Services.AddScoped<IKararMotoru, KararMotoru>();
 
+            // Denetim günlüğü servisi
+            builder.Services.AddScoped<AuditService>();
+
+            // Bildirim servisi
+            builder.Services.AddScoped<NotificationService>();
+
             var app = builder.Build();
 
             // Başlangıç verilerini yükle
