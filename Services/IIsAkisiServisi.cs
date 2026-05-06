@@ -34,5 +34,11 @@ namespace FlowMind.Services
 
         /// <summary>Yeni iş akışı oluşturur</summary>
         FlowMind.Models.Workflow IsAkisiOlustur(FlowMind.Models.Workflow workflow);
+
+        /// <summary>İş akışını başlatır (Instance oluşturur)</summary>
+        FlowMind.Models.WorkflowInstance IsAkisiBaslat(string workflowId, string baslatanId, Dictionary<string, string> formVerisi);
+
+        /// <summary>Belirli bir iş akışı örneğinin sıradaki adımını YZ ile değerlendirir ve işletir</summary>
+        Task<FlowMind.Models.AIDecision?> AdimiIslet(string instanceId);
     }
 }

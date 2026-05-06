@@ -42,4 +42,19 @@ public class WorkflowController : Controller
 
         return View(workflow);
     }
+
+    [HttpPost]
+    public IActionResult Run(string id)
+    {
+        var formVerisi = new Dictionary<string, string>
+        {
+            { "Otomatik", "Demo" } // Hackathon için varsayılan form verisi
+        };
+        var instance = _isAkisiServisi.IsAkisiBaslat(id, "USR-004", formVerisi);
+        
+        // Akış başladığında ilk adımı otomatik işletmeyi deneriz
+        _isAkisiServisi.AdimiIslet(instance.Id).Wait();
+
+        return RedirectToAction(nameof(Index)); // veya Dashboard
+    }
 }
