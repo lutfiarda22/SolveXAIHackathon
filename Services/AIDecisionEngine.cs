@@ -17,10 +17,10 @@ public class AIDecisionEngine
     private readonly AuditService _audit;
     private readonly ILogger<AIDecisionEngine> _logger;
 
-    // Karar eşikleri (kolay ayarlanabilir)
-    private const decimal OtomatikOnayEsik = 5000m;     // ₺5.000 altı otomatik onay
-    private const decimal YuksekRiskEsik = 50000m;       // ₺50.000 üstü yüksek risk
-    private const int AcilSaatEsik = 24;                 // 24 saat içinde son tarih = acil
+    // Karar eşikleri (kolay ayarlanabilir) - Issue #13: YZ Karar Motoru Eşikleri
+    private const decimal OtomatikOnayEsik = 5000m;     // ₺5.000 altı otomatik onay (Low Risk)
+    private const decimal YuksekRiskEsik = 50000m;       // ₺50.000 üstü yüksek risk (High Risk)
+    private const int AcilSaatEsik = 24;                 // 24 saat içinde son tarih = acil (Öncelik belirleme)
 
     public AIDecisionEngine(InMemoryDataStore store, AuditService audit, ILogger<AIDecisionEngine> logger)
     {
