@@ -1,3 +1,15 @@
+@using FlowMind.Data
+@using Microsoft.EntityFrameworkCore
+@inject FlowMindDbContext _context
+
+@{
+    var notifications = _context.Notifications
+        .OrderByDescending(n => n.OlusturmaTarihi)
+        .Take(5)
+        .ToList();
+        
+    var unreadCount = _context.Notifications.Count(n => !n.Okundu);
+}
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -76,6 +88,44 @@
             </button>
             <h1 class="fm-topbar-title">@ViewData["Title"]</h1>
             <div class="fm-topbar-right">
+                
+                <!-- Notification Bell -->
+                <div class="fm-notification-wrapper" style="position: relative; margin-right: 1.5rem;">
+                    <button class="fm-notification-btn" id="notificationBtn" aria-label="Bildirimler" style="background: none; border: none; font-size: 1.25rem; position: relative; cursor: pointer;">
+                        🔔
+                        @if(unreadCount > 0)
+                        {
+                            <span class="fm-notification-badge" style="position: absolute; top: -5px; right: -5px; background: var(--fm-danger); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">@unreadCount</span>
+                        }
+                    </button>
+                    
+                    <div class="fm-notification-dropdown" id="notificationDropdown" style="display: none; position: absolute; right: 0; top: 100%; width: 320px; background: var(--fm-card-bg); border: 1px solid var(--fm-border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000; overflow: hidden; margin-top: 10px;">
+                        <div class="fm-notification-header" style="padding: 1rem; border-bottom: 1px solid var(--fm-border); display: flex; justify-content: space-between; align-items: center;">
+                            <h6 style="margin: 0; font-weight: 600;">Bildirimler</h6>
+                            <span style="font-size: 0.8rem; color: var(--fm-text-secondary);">Son 5</span>
+                        </div>
+                        <div class="fm-notification-body" style="max-height: 350px; overflow-y: auto;">
+                            @if(notifications.Any())
+                            {
+                                foreach(var notif in notifications)
+                                {
+                                    <div class="fm-notification-item @(notif.Okundu ? "" : "unread")" style="padding: 1rem; border-bottom: 1px solid var(--fm-border); transition: background 0.2s; @(notif.Okundu ? "" : "background: rgba(79, 70, 229, 0.05);") cursor: pointer;" onmouseover="this.style.background='var(--fm-hover-bg)'" onmouseout="this.style.background='@(notif.Okundu ? "transparent" : "rgba(79, 70, 229, 0.05)")'">
+                                        <div style="font-size: 0.85rem; font-weight: 600; color: var(--fm-text-primary); margin-bottom: 4px;">@notif.Baslik</div>
+                                        <div style="font-size: 0.8rem; color: var(--fm-text-secondary); line-height: 1.4;">@notif.Mesaj</div>
+                                        <div style="font-size: 0.7rem; color: var(--fm-text-muted); margin-top: 6px; text-align: right;">@notif.OlusturmaTarihi.ToString("HH:mm")</div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div style="padding: 2rem 1rem; text-align: center; color: var(--fm-text-muted); font-size: 0.85rem;">
+                                    Bildiriminiz yok.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
                 <div class="fm-topbar-badge">
                     <span class="fm-pulse-dot"></span>
                     AI Motor Aktif
@@ -113,6 +163,23 @@
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
         });
+
+        // Notification Toggle
+        const notifBtn = document.getElementById('notificationBtn');
+        const notifDropdown = document.getElementById('notificationDropdown');
+        
+        if(notifBtn) {
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notifDropdown.style.display = notifDropdown.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!notifDropdown.contains(e.target) && e.target !== notifBtn) {
+                    notifDropdown.style.display = 'none';
+                }
+            });
+        }
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

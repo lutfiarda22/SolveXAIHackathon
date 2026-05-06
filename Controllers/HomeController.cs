@@ -47,7 +47,7 @@ namespace FlowMind.Controllers
                 ToplamIslemSayisi = _context.Tasks.Count() + _context.WorkflowInstances.Count(),
                 BekleyenOnaySayisi = _context.Tasks.Count(t => t.Durum == FlowMind.Models.TaskStatus.Atandı),
                 AIKararSayisi = _context.AIDecisions.Count(),
-                ZamanKazanciSaat = Math.Round(_context.AIDecisions.Count() * 15.0 / 60.0, 1),
+                ZamanKazanciSaat = Math.Round(_context.AIDecisions.Count() * 3.0 / 60.0, 1),
                 Aktiviteler = _auditService.TumKayitlar().Take(5).Select(a => new ActivityItem
                 {
                     Baslik = a.KullaniciAd + " - " + a.Eylem,

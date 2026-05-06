@@ -13,13 +13,15 @@ namespace FlowMind.Services
         private readonly ILogger<IsAkisiServisi> _logger;
         private readonly AIDecisionEngine _aiDecisionEngine;
         private readonly MockIntegrationService _integrationService;
+        private readonly IEmailService _emailService;
 
-        public IsAkisiServisi(FlowMindDbContext context, ILogger<IsAkisiServisi> logger, AIDecisionEngine aiDecisionEngine, MockIntegrationService integrationService)
+        public IsAkisiServisi(FlowMindDbContext context, ILogger<IsAkisiServisi> logger, AIDecisionEngine aiDecisionEngine, MockIntegrationService integrationService, IEmailService emailService)
         {
             _context = context;
             _logger = logger;
             _aiDecisionEngine = aiDecisionEngine;
             _integrationService = integrationService;
+            _emailService = emailService;
         }
 
         public int ToplamIsAkisiSayisi()
@@ -128,6 +130,19 @@ namespace FlowMind.Services
                 // Akış bitti
                 instance.Durum = FlowMind.Models.WorkflowStatus.Tamamlandı;
                 instance.BitisTarihi = DateTime.Now;
+
+                // E-posta gönder
+                var baslatanUser = _context.Users.FirstOrDefault(u => u.Id == instance.BaslatanId);
+                if (baslatanUser != null)
+                {
+                    await _emailService.SendEmailAsync(
+                        baslatanUser.EPosta,
+                        $"İş Akışı Tamamlandı: {instance.WorkflowAdi}",
+                        $"Merhaba {baslatanUser.Ad},\n\nBaşlatmış olduğunuz '{instance.WorkflowAdi}' adlı iş akışı başarıyla tamamlanmıştır.",
+                        instance.Id
+                    );
+                }
+
                 await _context.SaveChangesAsync();
                 return null;
             }
@@ -169,7 +184,26 @@ namespace FlowMind.Services
                         YZTarafindan = true,
                         OlusturmaTarihi = DateTime.Now
                     };
+
+                    // Basit Atama Mock'u
+                    string atananKisiId = currentStep.AtananKisi == "Yonetici" ? "USR-002" :
+                                          currentStep.AtananKisi == "Finans" ? "USR-003" : "USR-004";
+                    task.AtananKisiId = atananKisiId;
+
                     _context.Tasks.Add(task);
+
+                    // E-posta Gönder
+                    var atananUser = _context.Users.FirstOrDefault(u => u.Id == atananKisiId);
+                    if (atananUser != null)
+                    {
+                        await _emailService.SendEmailAsync(
+                            atananUser.EPosta,
+                            $"Yeni Onay Görevi: {task.Baslik}",
+                            $"Merhaba {atananUser.Ad},\n\nSize atanmış yeni bir onay görevi bulunmaktadır.\n\nİlgili Akış: {instance.WorkflowAdi}\nDetay: {task.Aciklama}",
+                            instance.Id
+                        );
+                    }
+
                     // Beklemeye alıyoruz
                     instance.Durum = FlowMind.Models.WorkflowStatus.Beklemede;
                     break;

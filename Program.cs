@@ -20,6 +20,7 @@ namespace FlowMind
 
             // İş akışı yönetim servisi
             builder.Services.AddScoped<IIsAkisiServisi, IsAkisiServisi>();
+            builder.Services.AddScoped<IEmailService, FakeEmailService>();
 
             // AI Karar Motoru servisi
             builder.Services.AddScoped<IKararMotoru, KararMotoru>();
