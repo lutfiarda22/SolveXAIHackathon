@@ -113,9 +113,12 @@ namespace FlowMind.Services
             }
 
             // AI Karar Motoruna gönder
+            // AI TRACEABILITY: İş akışı adımının durumuna göre YZ karar motoru (AIDecisionEngine) tetiklenir.
+            // Karar sonucu (Onay/Ret/İnceleme/Atla) burada değerlendirilir. (Issue #16)
             var decision = _aiDecisionEngine.Degerlendir(instance, currentStep);
 
             // Karara göre işlem yap
+            // AI TRACEABILITY: Kararın SuggestedAction enum'una göre sistemin bir sonraki adımı belirlenir.
             switch (decision.SuggestedAction)
             {
                 case FlowMind.Models.AIAction.OtomatikOnayla:
