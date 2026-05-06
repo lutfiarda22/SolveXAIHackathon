@@ -40,5 +40,8 @@ namespace FlowMind.Services
 
         /// <summary>Belirli bir iş akışı örneğinin sıradaki adımını YZ ile değerlendirir ve işletir</summary>
         Task<FlowMind.Models.AIDecision?> AdimiIslet(string instanceId);
+
+        /// <summary>Belirtilen iş akışına yeni bir adım ekler</summary>
+        void AdimEkle(string workflowId, FlowMind.Models.WorkflowStep adim);
     }
 }

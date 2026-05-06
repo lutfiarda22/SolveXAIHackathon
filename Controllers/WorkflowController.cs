@@ -60,4 +60,27 @@ public class WorkflowController : Controller
 
         return RedirectToAction(nameof(Index)); // veya Dashboard
     }
+
+    [HttpGet]
+    public IActionResult AddStep(string id)
+    {
+        var workflow = _isAkisiServisi.IsAkisiGetir(id);
+        if (workflow == null) return NotFound();
+
+        ViewBag.WorkflowId = id;
+        ViewBag.WorkflowName = workflow.Ad;
+        return View(new WorkflowStep());
+    }
+
+    [HttpPost]
+    public IActionResult AddStep(string id, WorkflowStep adim)
+    {
+        if (ModelState.IsValid)
+        {
+            _isAkisiServisi.AdimEkle(id, adim);
+            return RedirectToAction(nameof(Details), new { id = id });
+        }
+        ViewBag.WorkflowId = id;
+        return View(adim);
+    }
 }

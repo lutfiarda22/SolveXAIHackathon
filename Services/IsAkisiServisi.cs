@@ -94,6 +94,19 @@ namespace FlowMind.Services
             return instance;
         }
 
+        public void AdimEkle(string workflowId, FlowMind.Models.WorkflowStep adim)
+        {
+            var workflow = _store.Get(_store.Workflows, workflowId);
+            if (workflow != null)
+            {
+                if (workflow.Adimlar == null) workflow.Adimlar = new List<FlowMind.Models.WorkflowStep>();
+                adim.Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}";
+                adim.Sira = workflow.Adimlar.Count + 1; // En sona ekle
+                workflow.Adimlar.Add(adim);
+                _logger.LogInformation("İş akışına yeni adım eklendi: {WorkflowId} -> {AdimAd}", workflowId, adim.Ad);
+            }
+        }
+
         public async Task<FlowMind.Models.AIDecision?> AdimiIslet(string instanceId)
         {
             var instance = _store.Get(_store.WorkflowInstances, instanceId);

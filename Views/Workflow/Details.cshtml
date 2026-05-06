@@ -43,7 +43,7 @@
         <div class="fm-card">
             <div class="d-flex justify-between align-center mb-3">
                 <h5 class="fm-card-title mb-0">Süreç Adımları (@Model.Adimlar.Count)</h5>
-                <button type="button" class="fm-btn fm-btn-sm fm-btn-primary" onclick="alert('Adım ekleme özelliği MVP sürümünde henüz aktif değildir.')">Adım Ekle</button>
+                <a asp-action="AddStep" asp-route-id="@Model.Id" class="fm-btn fm-btn-sm fm-btn-primary">Adım Ekle</a>
             </div>
             
             <div class="fm-feature-list">
