@@ -30,6 +30,9 @@ namespace FlowMind
             // Mock entegrasyon servisi (CRM, ERP, Slack vb.)
             builder.Services.AddScoped<MockIntegrationService>();
 
+            // Gelişmiş YZ Karar Motoru
+            builder.Services.AddScoped<AIDecisionEngine>();
+
             var app = builder.Build();
 
             // Başlangıç verilerini yükle
