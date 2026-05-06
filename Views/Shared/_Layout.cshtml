@@ -40,6 +40,16 @@
 
             <span class="fm-nav-section-title">Sistem</span>
 
+            <a href="/Integration/Index" class="fm-sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Integration" ? "active" : "")" id="nav-integrations">
+                <span class="fm-sidebar-icon">🔌</span>
+                <span class="fm-sidebar-label">Entegrasyonlar</span>
+            </a>
+
+            <a href="/Audit/Index" class="fm-sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Audit" ? "active" : "")" id="nav-audit">
+                <span class="fm-sidebar-icon">📋</span>
+                <span class="fm-sidebar-label">Denetim Günlüğü</span>
+            </a>
+
             <a href="/Home/Hakkinda" class="fm-sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Hakkinda" ? "active" : "")" id="nav-about">
                 <span class="fm-sidebar-icon">ℹ️</span>
                 <span class="fm-sidebar-label">Hakkında</span>
