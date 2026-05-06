@@ -47,7 +47,7 @@ namespace FlowMind.Controllers
                 }
             };
 
-            _logger.LogInformation("Ana panel yüklendi. Toplam: {Toplam}, Aktif: {Aktif}", 
+            _logger.LogInformation("Ana panel yüklendi. Toplam: {Toplam}, Aktif: {Aktif}",
                 model.ToplamIsAkisi, model.AktifIsAkisi);
 
             return View(model);
