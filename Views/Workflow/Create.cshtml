@@ -46,10 +46,39 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <!-- Dinamik Alanlar -->
                     <div class="col-md-6" id="tutarAlani">
                         <div class="fm-form-group">
                             <label class="fm-label">Tutar (₺)</label>
                             <input type="number" name="Tutar" class="fm-input" placeholder="Örn: 15000" min="0" step="0.01" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" id="izinSebebiAlani" style="display:none;">
+                        <div class="fm-form-group">
+                            <label class="fm-label">İzin Sebebi</label>
+                            <select name="IzinSebebi" class="fm-input">
+                                <option value="">Seçiniz</option>
+                                <option value="Hastalık Raporu">Hastalık Raporu</option>
+                                <option value="Vefat">Vefat</option>
+                                <option value="Düğün/Evlilik">Düğün / Evlilik</option>
+                                <option value="Doğum">Doğum İzni</option>
+                                <option value="Yıllık İzin">Yıllık İzin</option>
+                                <option value="Mazeret İzni">Mazeret İzni</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" id="iadeSebebiAlani" style="display:none;">
+                        <div class="fm-form-group">
+                            <label class="fm-label">İade Sebebi</label>
+                            <select name="IadeSebebi" class="fm-input">
+                                <option value="">Seçiniz</option>
+                                <option value="Kusurlu Ürün">Kusurlu Ürün</option>
+                                <option value="Yanlış Ürün Gönderimi">Yanlış Ürün Gönderimi</option>
+                                <option value="Cayma Hakkı / Vazgeçtim">Cayma Hakkı / Vazgeçtim</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -113,9 +142,20 @@
 function konuDegisti() {
     var konu = document.getElementById('konuSelect').value;
     var tutarAlani = document.getElementById('tutarAlani');
-    if (konu === 'İzin' || konu === 'Diğer') {
-        tutarAlani.style.display = 'none';
-    } else {
+    var izinSebebiAlani = document.getElementById('izinSebebiAlani');
+    var iadeSebebiAlani = document.getElementById('iadeSebebiAlani');
+
+    // Reset visibility
+    tutarAlani.style.display = 'none';
+    izinSebebiAlani.style.display = 'none';
+    iadeSebebiAlani.style.display = 'none';
+
+    if (konu === 'İzin') {
+        izinSebebiAlani.style.display = '';
+    } else if (konu === 'İade') {
+        iadeSebebiAlani.style.display = '';
+    } else if (konu !== 'Diğer') {
+        // Satınalma, Sipariş, Fatura
         tutarAlani.style.display = '';
     }
 }

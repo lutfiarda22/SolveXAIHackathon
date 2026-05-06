@@ -87,6 +87,40 @@ public class AIDecisionEngine
         if (!decimal.TryParse(tutarStr, out var tutar)) tutar = 0;
 
         var departman = instance.FormVerisi.GetValueOrDefault("Departman", "Bilinmiyor");
+        var konu = instance.FormVerisi.GetValueOrDefault("Konu", "");
+        var adimAdi = step.Ad;
+        var izinSebebi = instance.FormVerisi.GetValueOrDefault("IzinSebebi", "");
+        var iadeSebebi = instance.FormVerisi.GetValueOrDefault("IadeSebebi", "");
+
+        // KURAL 0: İzin Süreçleri (Hastalık, Vefat vb.)
+        if (!string.IsNullOrEmpty(izinSebebi) || konu.Contains("İzin", StringComparison.OrdinalIgnoreCase) || adimAdi.Contains("İzin", StringComparison.OrdinalIgnoreCase) || adimAdi.Contains("izin", StringComparison.OrdinalIgnoreCase))
+        {
+            if (izinSebebi == "Hastalık Raporu" || izinSebebi == "Vefat" || izinSebebi == "Düğün/Evlilik" || izinSebebi == "Doğum")
+            {
+                return (AIAction.OtomatikOnayla, 0.95,
+                    $"İzin talebinde yasal/öncelikli mazeret ({izinSebebi}) tespit edildi. Güven skoru yüksek, otomatik onay verildi.");
+            }
+            else
+            {
+                return (AIAction.ManuelInceleme, 0.40,
+                    $"İzin talebi ({izinSebebi}) standart veya inisiyatif gerektiren türde olduğu için manuel incelemeye yönlendirildi.");
+            }
+        }
+
+        // KURAL 0.5: İade Süreçleri
+        if (!string.IsNullOrEmpty(iadeSebebi) || konu.Contains("İade", StringComparison.OrdinalIgnoreCase) || adimAdi.Contains("İade", StringComparison.OrdinalIgnoreCase) || adimAdi.Contains("iade", StringComparison.OrdinalIgnoreCase))
+        {
+            if (iadeSebebi == "Kusurlu Ürün" || iadeSebebi == "Yanlış Ürün Gönderimi")
+            {
+                return (AIAction.OtomatikOnayla, 0.90,
+                    $"İade sebebi olarak operasyonel hata ({iadeSebebi}) tespit edildiğinden iade otomatik onaylandı.");
+            }
+            else
+            {
+                return (AIAction.ManuelInceleme, 0.50,
+                    $"İade sebebi ({iadeSebebi}) müşteri/ürün incelemesi gerektirdiğinden manuel onaya gönderildi.");
+            }
+        }
 
         // Kural 1: Düşük tutar → otomatik onay
         if (tutar > 0 && tutar <= OtomatikOnayEsik)

@@ -27,7 +27,7 @@ public class WorkflowController : Controller
     }
 
     [HttpPost]
-    public IActionResult Create(Workflow workflow, string? Departman, string? Tutar, string? Konu)
+    public IActionResult Create(Workflow workflow, string? Departman, string? Tutar, string? Konu, string? IzinSebebi, string? IadeSebebi)
     {
         if (ModelState.IsValid)
         {
@@ -36,6 +36,8 @@ public class WorkflowController : Controller
             if (!string.IsNullOrEmpty(Departman)) workflow.FormVerisi["Departman"] = Departman;
             if (!string.IsNullOrEmpty(Tutar)) workflow.FormVerisi["Tutar"] = Tutar;
             if (!string.IsNullOrEmpty(Konu)) workflow.FormVerisi["Konu"] = Konu;
+            if (!string.IsNullOrEmpty(IzinSebebi)) workflow.FormVerisi["IzinSebebi"] = IzinSebebi;
+            if (!string.IsNullOrEmpty(IadeSebebi)) workflow.FormVerisi["IadeSebebi"] = IadeSebebi;
 
             _isAkisiServisi.IsAkisiOlustur(workflow);
             return RedirectToAction(nameof(Details), new { id = workflow.Id });

@@ -188,6 +188,12 @@ namespace FlowMind.Services
                     // Basit Atama Mock'u
                     string atananKisiId = currentStep.AtananKisi == "Yonetici" ? "USR-002" :
                                           currentStep.AtananKisi == "Finans" ? "USR-003" : "USR-004";
+
+                    // Spesifik Yönlendirmeler
+                    var konu = instance.FormVerisi.GetValueOrDefault("Konu", "");
+                    if (konu == "İzin") atananKisiId = "USR-004"; // İnsan Kaynakları (veya Yöneticisi)
+                    else if (konu == "İade") atananKisiId = "USR-003"; // İade / Operasyon Birimi
+
                     task.AtananKisiId = atananKisiId;
 
                     _context.Tasks.Add(task);
