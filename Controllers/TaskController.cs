@@ -73,7 +73,7 @@ public class TaskController : Controller
         var task = _tasks.FirstOrDefault(t => t.Id == id);
         if (task != null)
         {
-            task.Durum = TaskStatus.İptalEdildi;
+            task.Durum = TaskStatus.Reddedildi;
             task.TamamlanmaTarihi = DateTime.Now;
             task.KullaniciNotu = not;
         }

@@ -18,8 +18,8 @@ public class WorkflowController : Controller
             OlusturmaTarihi = DateTime.Now.AddDays(-2),
             Adimlar = new List<WorkflowStep>
             {
-                new WorkflowStep { Id = "S1", Ad = "Sözleşme Gönder", ServisTuru = ServisTuru.Notification, Sira = 1 },
-                new WorkflowStep { Id = "S2", Ad = "IT Ekipman Talebi", ServisTuru = ServisTuru.ERP, Sira = 2 }
+                new WorkflowStep { Id = "S1", Ad = "Sözleşme Gönder", EylemTuru = StepActionType.Bildirim, Sira = 1 },
+                new WorkflowStep { Id = "S2", Ad = "IT Ekipman Talebi", EylemTuru = StepActionType.Entegrasyon, EntegrasyonTuru = IntegrationType.ERP, Sira = 2 }
             }
         },
         new Workflow 
@@ -32,8 +32,8 @@ public class WorkflowController : Controller
             OlusturmaTarihi = DateTime.Now.AddDays(-5),
             Adimlar = new List<WorkflowStep>
             {
-                new WorkflowStep { Id = "S1", Ad = "Yönetici Onayı", ServisTuru = ServisTuru.Approval, Sira = 1 },
-                new WorkflowStep { Id = "S2", Ad = "Sipariş Geç", ServisTuru = ServisTuru.ERP, Sira = 2 }
+                new WorkflowStep { Id = "S1", Ad = "Yönetici Onayı", EylemTuru = StepActionType.Onay, Sira = 1 },
+                new WorkflowStep { Id = "S2", Ad = "Sipariş Geç", EylemTuru = StepActionType.Entegrasyon, EntegrasyonTuru = IntegrationType.ERP, Sira = 2 }
             }
         }
     };

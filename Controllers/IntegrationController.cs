@@ -37,7 +37,7 @@ public class IntegrationController : Controller
         {
             Id = "INT-103",
             WorkflowInstanceId = "WFI-9012",
-            HedefSistem = IntegrationType.Email,
+            HedefSistem = IntegrationType.EPosta,
             Islem = "EpostaGonder",
             GonderilenVeri = "{ \"To\": \"ahmet@example.com\", \"Subject\": \"Onayınız Bekleniyor\" }",
             Yanit = "{\"Status\": \"Queued\", \"MessageId\": \"msg_01\"}",
