@@ -29,5 +29,28 @@ namespace FlowMind.Models
         /// Hoş geldiniz mesajı
         /// </summary>
         public string HosgeldinMesaji { get; set; } = "FlowMind AI Orkestratör'e Hoş Geldiniz!";
+        /// <summary>
+        /// AI tarafından otomatik yönetilen süreçlerin oranı (%)
+        /// </summary>
+        public int AIOtomasyonOrani { get; set; }
+
+        /// <summary>
+        /// Toplam işlem (task/step) sayısı
+        /// </summary>
+        public int ToplamIslemSayisi { get; set; }
+
+        /// <summary>
+        /// Son aktiviteler (Activity Feed)
+        /// </summary>
+        public List<ActivityItem> Aktiviteler { get; set; } = new List<ActivityItem>();
+    }
+
+    public class ActivityItem
+    {
+        public string Baslik { get; set; } = string.Empty;
+        public string Aciklama { get; set; } = string.Empty;
+        public DateTime Tarih { get; set; }
+        public string Ikon { get; set; } = "📝";
+        public string Tur { get; set; } = "info"; // success, warning, danger, info
     }
 }

@@ -797,6 +797,8 @@ a {
 .justify-between { justify-content: space-between; }
 .gap-1 { gap: 0.5rem; }
 .gap-2 { gap: 1rem; }
+.flex-column { flex-direction: column; }
+.w-100 { width: 100%; }
 
 /* ============================================
    RESPONSIVE

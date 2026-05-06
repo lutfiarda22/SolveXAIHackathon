@@ -35,7 +35,16 @@ namespace FlowMind.Controllers
                 ToplamIsAkisi = _isAkisiServisi.ToplamIsAkisiSayisi(),
                 AktifIsAkisi = _isAkisiServisi.AktifIsAkisiSayisi(),
                 TamamlananIsAkisi = _isAkisiServisi.TamamlananIsAkisiSayisi(),
-                SistemDurumu = _isAkisiServisi.SistemDurumuOzeti()
+                SistemDurumu = _isAkisiServisi.SistemDurumuOzeti(),
+                AIOtomasyonOrani = 78, // Mock data
+                ToplamIslemSayisi = 1250, // Mock data
+                Aktiviteler = new List<ActivityItem>
+                {
+                    new ActivityItem { Baslik = "AI Kararı: Onaylandı", Aciklama = "Sipariş #1042 otomatik olarak onaylandı.", Tarih = DateTime.Now.AddMinutes(-5), Ikon = "🤖", Tur = "success" },
+                    new ActivityItem { Baslik = "Yeni İş Akışı", Aciklama = "İnsan Kaynakları işe alım süreci başlatıldı.", Tarih = DateTime.Now.AddMinutes(-25), Ikon = "🔄", Tur = "info" },
+                    new ActivityItem { Baslik = "Risk Uyarısı", Aciklama = "Ödeme işleminde anomali tespit edildi, manuel inceleme bekleniyor.", Tarih = DateTime.Now.AddHours(-1), Ikon = "⚠️", Tur = "warning" },
+                    new ActivityItem { Baslik = "Entegrasyon Hatası", Aciklama = "CRM servisine bağlanılamadı.", Tarih = DateTime.Now.AddHours(-2), Ikon = "❌", Tur = "danger" }
+                }
             };
 
             _logger.LogInformation("Ana panel yüklendi. Toplam: {Toplam}, Aktif: {Aktif}", 
