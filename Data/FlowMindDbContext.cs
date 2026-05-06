@@ -64,9 +64,9 @@ public class FlowMindDbContext : DbContext
         var users = new[]
         {
             new User { Id = "USR-001", Ad = "Ahmet", Soyad = "Yılmaz", EPosta = "ahmet@flowmind.com", Rol = UserRole.Calisan, Departman = "Bilişim", KayitTarihi = DateTime.Now },
-            new User { Id = "USR-002", Ad = "Ayşe", Soyad = "Demir", EPosta = "ayse@flowmind.com", Rol = UserRole.Yonetici, Departman = "Bilişim", KayitTarihi = DateTime.Now },
-            new User { Id = "USR-003", Ad = "Mehmet", Soyad = "Kaya", EPosta = "mehmet@flowmind.com", Rol = UserRole.Finans, Departman = "Finans", KayitTarihi = DateTime.Now },
-            new User { Id = "USR-004", Ad = "Fatma", Soyad = "Çelik", EPosta = "fatma@flowmind.com", Rol = UserRole.Admin, Departman = "Yönetim", KayitTarihi = DateTime.Now },
+            new User { Id = "USR-002", Ad = "Lütfi", Soyad = "Arda", EPosta = "lutfi@flowmind.com", Rol = UserRole.Yonetici, Departman = "Yönetim", KayitTarihi = DateTime.Now },
+            new User { Id = "USR-003", Ad = "Esma", Soyad = "Mol", EPosta = "esma@flowmind.com", Rol = UserRole.Finans, Departman = "Finans", KayitTarihi = DateTime.Now },
+            new User { Id = "USR-004", Ad = "Sinem", Soyad = "Doğan", EPosta = "sinem@flowmind.com", Rol = UserRole.Admin, Departman = "İnsan Kaynakları", KayitTarihi = DateTime.Now },
             new User { Id = "USR-005", Ad = "Ali", Soyad = "Öztürk", EPosta = "ali@flowmind.com", Rol = UserRole.Calisan, Departman = "Satış", KayitTarihi = DateTime.Now }
         };
         modelBuilder.Entity<User>().HasData(users);
@@ -143,7 +143,7 @@ public class FlowMindDbContext : DbContext
                 Id = "TSK-001", Baslik = "Yüksek Tutarlı Satınalma Onayı",
                 Aciklama = "MacBook Pro M3 Max donanım talebi onayınızı bekliyor. Tutar: ₺120.000",
                 WorkflowInstanceId = "WFI-001", StepId = "STP-002",
-                AtananKisiId = "USR-003", AtananKisiAd = "Mehmet Kaya",
+                AtananKisiId = "USR-003", AtananKisiAd = "Esma Mol",
                 Durum = TaskStatus.Atandı, Oncelik = 5, YZTarafindan = true,
                 OlusturmaTarihi = DateTime.Now.AddHours(-2)
             },
@@ -152,7 +152,7 @@ public class FlowMindDbContext : DbContext
                 Id = "TSK-002", Baslik = "Sözleşme İncelemesi",
                 Aciklama = "Yeni tedarikçi sözleşmesinin hukuk departmanı tarafından incelenmesi.",
                 WorkflowInstanceId = "WFI-001", StepId = "STP-001",
-                AtananKisiId = "USR-002", AtananKisiAd = "Ayşe Demir",
+                AtananKisiId = "USR-002", AtananKisiAd = "Lütfi Arda",
                 Durum = TaskStatus.Atandı, Oncelik = 3,
                 OlusturmaTarihi = DateTime.Now.AddDays(-1),
                 SonTarih = DateTime.Now.AddHours(-5) // süresi geçmiş
@@ -162,7 +162,7 @@ public class FlowMindDbContext : DbContext
                 Id = "TSK-003", Baslik = "İzin Talebi Onayı",
                 Aciklama = "Ali Öztürk — Yıllık izin talebi (5 gün)",
                 WorkflowInstanceId = "WFI-002", StepId = "STP-001",
-                AtananKisiId = "USR-002", AtananKisiAd = "Ayşe Demir",
+                AtananKisiId = "USR-002", AtananKisiAd = "Lütfi Arda",
                 Durum = TaskStatus.Onaylandı, Oncelik = 2, YZTarafindan = true,
                 OlusturmaTarihi = DateTime.Now.AddDays(-3), TamamlanmaTarihi = DateTime.Now.AddDays(-2)
             }

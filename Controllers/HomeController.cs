@@ -77,6 +77,33 @@ namespace FlowMind.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult SetRole(string userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null)
+            {
+                Response.Cookies.Append("CurrentUserId", user.Id, new CookieOptions { Expires = DateTime.Now.AddDays(1) });
+                Response.Cookies.Append("CurrentUserName", user.TamAd, new CookieOptions { Expires = DateTime.Now.AddDays(1) });
+                Response.Cookies.Append("CurrentUserRole", user.Rol.ToString(), new CookieOptions { Expires = DateTime.Now.AddDays(1) });
+            }
+            
+            var referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer))
+                return Redirect(referer);
+                
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("CurrentUserId");
+            Response.Cookies.Delete("CurrentUserName");
+            Response.Cookies.Delete("CurrentUserRole");
+            return RedirectToAction("Index");
+        }
+
         /// <summary>
         /// Hata sayfası
         /// </summary>

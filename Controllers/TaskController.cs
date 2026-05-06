@@ -19,10 +19,20 @@ public class TaskController : Controller
 
     public IActionResult Index()
     {
-        var tasks = _context.Tasks
+        var currentUserId = Request.Cookies["CurrentUserId"];
+
+        var tasksQuery = _context.Tasks.AsQueryable();
+
+        if (!string.IsNullOrEmpty(currentUserId))
+        {
+            tasksQuery = tasksQuery.Where(t => t.AtananKisiId == currentUserId);
+        }
+
+        var tasks = tasksQuery
             .OrderByDescending(t => t.Durum == TaskStatus.Atandı)
             .ThenByDescending(t => t.Oncelik)
             .ToList();
+
         return View(tasks);
     }
 

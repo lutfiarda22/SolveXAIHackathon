@@ -146,6 +146,15 @@ public class AIDecisionEngine
     /// <summary>Genel akış kararı verir (öncelik, yönlendirme)</summary>
     private (AIAction, double, string) AkisKarariVer(WorkflowInstance instance, WorkflowStep step)
     {
+        // Yüksek riskli tutar kontrolü
+        var tutarStr = instance.FormVerisi.GetValueOrDefault("Tutar", "0");
+        if (decimal.TryParse(tutarStr, out var tutar) && tutar > YuksekRiskEsik)
+        {
+            return (AIAction.ManuelInceleme, 0.30,
+                $"Tutar (₺{tutar:N0}) yüksek risk eşiğinin (₺{YuksekRiskEsik:N0}) üzerinde. " +
+                $"Manuel incelemeye yönlendirildi.");
+        }
+
         // Son tarih kontrolü
         var sonTarihStr = instance.FormVerisi.GetValueOrDefault("SonTarih", "");
         if (DateTime.TryParse(sonTarihStr, out var sonTarih))

@@ -9,6 +9,10 @@
         .ToList();
         
     var unreadCount = _context.Notifications.Count(n => !n.Okundu);
+
+    var currentUserName = Context.Request.Cookies["CurrentUserName"];
+    var currentUserRole = Context.Request.Cookies["CurrentUserRole"];
+    bool hasRole = !string.IsNullOrEmpty(currentUserName);
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -68,7 +72,15 @@
             </a>
         </nav>
 
-        <div class="fm-sidebar-footer">
+        <div class="fm-sidebar-footer" style="display: flex; flex-direction: column; gap: 10px;">
+            @if(hasRole) {
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                    <div style="font-size: 0.8rem; color: var(--fm-text-muted);">Aktif Kullanıcı</div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">@currentUserName</div>
+                    <div style="font-size: 0.75rem; color: var(--fm-primary);">@currentUserRole</div>
+                </div>
+                <button type="button" onclick="document.getElementById('roleModal').style.display='flex'" style="background: transparent; border: 1px solid var(--fm-border); color: var(--fm-text-primary); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; width: 100%;">🔄 Rol Değiştir</button>
+            }
             <div class="fm-sidebar-status">
                 <span class="fm-pulse-dot"></span>
                 <span>Sistem Aktif</span>
@@ -181,6 +193,52 @@
             });
         }
     </script>
+
+    <!-- Role Selection Modal -->
+    <div id="roleModal" style="display: @(hasRole ? "none" : "flex"); position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: var(--fm-card-bg); padding: 2rem; border-radius: 16px; max-width: 400px; width: 90%; border: 1px solid var(--fm-border); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+            <h3 style="margin-top: 0; margin-bottom: 0.5rem;">Sisteme Giriş Yapın</h3>
+            <p style="color: var(--fm-text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Demo senaryosu için bir rol seçin. Görevleriniz seçtiğiniz role göre filtrelenecektir.</p>
+            
+            <form action="/Home/SetRole" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="submit" name="userId" value="USR-002" class="fm-btn fm-btn-outline" style="justify-content: flex-start; text-align: left;">
+                    <span style="font-size: 1.5rem; margin-right: 10px;">👨‍💼</span>
+                    <div>
+                        <div style="font-weight: bold;">Lütfi Arda</div>
+                        <div style="font-size: 0.75rem; opacity: 0.8;">Yönetici (Onay Bekleyenler)</div>
+                    </div>
+                </button>
+                
+                <button type="submit" name="userId" value="USR-003" class="fm-btn fm-btn-outline" style="justify-content: flex-start; text-align: left;">
+                    <span style="font-size: 1.5rem; margin-right: 10px;">👩‍💼</span>
+                    <div>
+                        <div style="font-weight: bold;">Esma Mol</div>
+                        <div style="font-size: 0.75rem; opacity: 0.8;">Finans (Bütçe ve Ödemeler)</div>
+                    </div>
+                </button>
+                
+                <button type="submit" name="userId" value="USR-004" class="fm-btn fm-btn-outline" style="justify-content: flex-start; text-align: left;">
+                    <span style="font-size: 1.5rem; margin-right: 10px;">👩‍💻</span>
+                    <div>
+                        <div style="font-weight: bold;">Sinem Doğan</div>
+                        <div style="font-size: 0.75rem; opacity: 0.8;">İnsan Kaynakları / Admin</div>
+                    </div>
+                </button>
+
+                <button type="submit" name="userId" value="USR-001" class="fm-btn fm-btn-outline" style="justify-content: flex-start; text-align: left;">
+                    <span style="font-size: 1.5rem; margin-right: 10px;">👨‍💻</span>
+                    <div>
+                        <div style="font-weight: bold;">Ahmet Yılmaz</div>
+                        <div style="font-size: 0.75rem; opacity: 0.8;">Çalışan (Talep Sahibi)</div>
+                    </div>
+                </button>
+                
+                @if(hasRole) {
+                    <button type="button" onclick="document.getElementById('roleModal').style.display='none'" class="fm-btn" style="margin-top: 10px; background: transparent; color: var(--fm-text-secondary); border: none;">İptal</button>
+                }
+            </form>
+        </div>
+    </div>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
