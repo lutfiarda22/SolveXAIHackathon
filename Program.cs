@@ -1,3 +1,5 @@
+using FlowMind.Services;
+
 namespace FlowMind
 {
     public class Program
@@ -6,25 +8,38 @@ namespace FlowMind
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // ===== Servislerin Kaydı (Dependency Injection) =====
+            // MVC servislerini ekle
             builder.Services.AddControllersWithViews();
+
+            // İş akışı yönetim servisi
+            builder.Services.AddScoped<IIsAkisiServisi, IsAkisiServisi>();
+
+            // AI Karar Motoru servisi
+            builder.Services.AddScoped<IKararMotoru, KararMotoru>();
+
+            // TODO: Veritabanı bağlantısı ileride buraya eklenecek
+            // builder.Services.AddDbContext<FlowMindDbContext>(...);
+
+            // TODO: Entegrasyon servisleri (CRM, ERP, İletişim)
+            // builder.Services.AddScoped<IEntegrasyonServisi, EntegrasyonServisi>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // ===== HTTP İstek Pipeline Yapılandırması =====
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+            // Varsayılan rota yapılandırması
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")

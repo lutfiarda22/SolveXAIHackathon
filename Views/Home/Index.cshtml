@@ -1,8 +1,86 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model FlowMind.Models.PanelViewModel
+@{
+    ViewData["Title"] = "Ana Panel";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hoş Geldiniz Bölümü -->
+<div class="fm-hero">
+    <div class="fm-hero-content">
+        <h1 class="fm-hero-title">@Model.HosgeldinMesaji</h1>
+        <p class="fm-hero-subtitle">Yapay zeka destekli iş akışı yönetim ve orkestrasyon platformu</p>
+    </div>
+</div>
+
+<!-- İstatistik Kartları -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="fm-stat-card fm-stat-total">
+            <div class="fm-stat-icon">📊</div>
+            <div class="fm-stat-info">
+                <span class="fm-stat-number">@Model.ToplamIsAkisi</span>
+                <span class="fm-stat-label">Toplam İş Akışı</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="fm-stat-card fm-stat-active">
+            <div class="fm-stat-icon">⚡</div>
+            <div class="fm-stat-info">
+                <span class="fm-stat-number">@Model.AktifIsAkisi</span>
+                <span class="fm-stat-label">Aktif İş Akışı</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="fm-stat-card fm-stat-done">
+            <div class="fm-stat-icon">✅</div>
+            <div class="fm-stat-info">
+                <span class="fm-stat-number">@Model.TamamlananIsAkisi</span>
+                <span class="fm-stat-label">Tamamlanan</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sistem Durumu -->
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="fm-card">
+            <h5 class="fm-card-title">🧠 AI Karar Motoru</h5>
+            <p class="fm-card-text">
+                FlowMind, gelen iş akışlarını otomatik olarak analiz eder ve uygun servislere yönlendirir.
+                Kural tabanlı karar mekanizması ile sipariş, destek, onay ve bildirim süreçlerini yönetir.
+            </p>
+            <div class="fm-feature-list">
+                <div class="fm-feature-item">🔄 Otomatik İş Akışı Yönlendirme</div>
+                <div class="fm-feature-item">📡 CRM / ERP Entegrasyonu</div>
+                <div class="fm-feature-item">📋 Denetim Kaydı (Audit Log)</div>
+                <div class="fm-feature-item">⚙️ Kural Tabanlı Karar Motoru</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="fm-card fm-card-status">
+            <h5 class="fm-card-title">📡 Sistem Durumu</h5>
+            <div class="fm-status-info">
+                <div class="fm-status-indicator fm-status-online"></div>
+                <span>@Model.SistemDurumu</span>
+            </div>
+            <hr class="fm-divider" />
+            <div class="fm-status-details">
+                <div class="fm-status-row">
+                    <span>API Servisi</span>
+                    <span class="fm-badge fm-badge-success">Aktif</span>
+                </div>
+                <div class="fm-status-row">
+                    <span>Karar Motoru</span>
+                    <span class="fm-badge fm-badge-success">Aktif</span>
+                </div>
+                <div class="fm-status-row">
+                    <span>Veritabanı</span>
+                    <span class="fm-badge fm-badge-warning">Beklemede</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
