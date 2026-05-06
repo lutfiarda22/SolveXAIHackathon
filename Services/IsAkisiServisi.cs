@@ -54,7 +54,7 @@ namespace FlowMind.Services
         {
             workflow.Id = "WF-" + new Random().Next(1000, 9999);
             workflow.OlusturmaTarihi = DateTime.Now;
-            
+
             // Adımlara benzersiz ID ata
             if (workflow.Adimlar != null)
             {
@@ -67,7 +67,7 @@ namespace FlowMind.Services
 
             _store.Workflows.TryAdd(workflow.Id, workflow);
             _logger.LogInformation("Yeni iş akışı oluşturuldu: {Id} - {Ad}", workflow.Id, workflow.Ad);
-            
+
             return workflow;
         }
 
@@ -97,7 +97,7 @@ namespace FlowMind.Services
         public async Task<FlowMind.Models.AIDecision?> AdimiIslet(string instanceId)
         {
             var instance = _store.Get(_store.WorkflowInstances, instanceId);
-            if (instance == null || instance.Durum != FlowMind.Models.WorkflowStatus.Calisıyor) 
+            if (instance == null || instance.Durum != FlowMind.Models.WorkflowStatus.Calisıyor)
                 return null;
 
             var workflow = _store.Get(_store.Workflows, instance.WorkflowId);
