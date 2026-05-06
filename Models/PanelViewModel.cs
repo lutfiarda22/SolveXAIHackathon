@@ -41,7 +41,7 @@ namespace FlowMind.Models
 
         public int BekleyenOnaySayisi { get; set; }
         public int AIKararSayisi { get; set; }
-        public double ZamanKazanciSaat { get; set; }
+        public string ZamanKazanciStr { get; set; } = "0 dk";
 
         /// <summary>
         /// Son aktiviteler (Activity Feed)

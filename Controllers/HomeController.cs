@@ -37,6 +37,11 @@ namespace FlowMind.Controllers
         /// </summary>
         public IActionResult Index()
         {
+            int totalSavedMinutes = _context.AIDecisions.Count() * 3;
+            string zamanKazanciStr = totalSavedMinutes < 60 
+                ? $"{totalSavedMinutes} dk" 
+                : (totalSavedMinutes % 60 == 0 ? $"{totalSavedMinutes / 60} sa" : $"{totalSavedMinutes / 60} sa {totalSavedMinutes % 60} dk");
+
             var model = new PanelViewModel
             {
                 ToplamIsAkisi = _isAkisiServisi.ToplamIsAkisiSayisi(),
@@ -47,7 +52,7 @@ namespace FlowMind.Controllers
                 ToplamIslemSayisi = _context.Tasks.Count() + _context.WorkflowInstances.Count(),
                 BekleyenOnaySayisi = _context.Tasks.Count(t => t.Durum == FlowMind.Models.TaskStatus.Atandı),
                 AIKararSayisi = _context.AIDecisions.Count(),
-                ZamanKazanciSaat = Math.Round(_context.AIDecisions.Count() * 3.0 / 60.0, 1),
+                ZamanKazanciStr = zamanKazanciStr,
                 Aktiviteler = _auditService.TumKayitlar().Take(5).Select(a => new ActivityItem
                 {
                     Baslik = a.KullaniciAd + " - " + a.Eylem,
