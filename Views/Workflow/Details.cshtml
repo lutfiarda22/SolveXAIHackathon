@@ -10,7 +10,9 @@
     </div>
     <div>
         <a asp-action="Index" class="fm-btn fm-btn-secondary">Geri Dön</a>
-        <button class="fm-btn fm-btn-success">▶ Çalıştır</button>
+        <form asp-action="Run" asp-route-id="@Model.Id" method="post" style="display:inline;">
+            <button type="submit" class="fm-btn fm-btn-success">▶ Çalıştır</button>
+        </form>
     </div>
 </div>
 
@@ -41,7 +43,7 @@
         <div class="fm-card">
             <div class="d-flex justify-between align-center mb-3">
                 <h5 class="fm-card-title mb-0">Süreç Adımları (@Model.Adimlar.Count)</h5>
-                <button class="fm-btn fm-btn-sm fm-btn-primary">Adım Ekle</button>
+                <button type="button" class="fm-btn fm-btn-sm fm-btn-primary" onclick="alert('Adım ekleme özelliği MVP sürümünde henüz aktif değildir.')">Adım Ekle</button>
             </div>
             
             <div class="fm-feature-list">
