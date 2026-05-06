@@ -1,0 +1,56 @@
+@model FlowMind.Models.Workflow
+@{
+    ViewData["Title"] = "Yeni İş Akışı";
+}
+
+<div class="mb-4">
+    <h2 style="font-weight: 700; margin-bottom: 0.2rem;">➕ Yeni İş Akışı Oluştur</h2>
+    <p class="text-muted" style="margin:0;">Sisteme yeni bir süreç şablonu tanımlayın.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="fm-card">
+            <form asp-action="Create" method="post">
+                <div class="fm-form-group">
+                    <label class="fm-label" asp-for="Ad">İş Akışı Adı</label>
+                    <input asp-for="Ad" class="fm-input" placeholder="Örn: Yıllık İzin Süreci" required />
+                </div>
+                
+                <div class="fm-form-group">
+                    <label class="fm-label" asp-for="Tetikleyici">Tetikleyici Durum</label>
+                    <input asp-for="Tetikleyici" class="fm-input" placeholder="Örn: Personel izin talep ettiğinde" />
+                </div>
+
+                <div class="fm-form-group">
+                    <label class="fm-label" asp-for="Aciklama">Açıklama</label>
+                    <textarea asp-for="Aciklama" class="fm-textarea" rows="4" placeholder="Sürecin detaylı açıklaması..."></textarea>
+                </div>
+                
+                <div class="fm-form-group">
+                    <label class="fm-label">Durum</label>
+                    <div class="d-flex align-center gap-2">
+                        <input type="checkbox" asp-for="Aktif" checked />
+                        <span style="font-size: 0.88rem;">Aktif olarak başla</span>
+                    </div>
+                </div>
+
+                <hr class="fm-divider" />
+                
+                <div class="d-flex justify-between">
+                    <a asp-action="Index" class="fm-btn fm-btn-secondary">İptal</a>
+                    <button type="submit" class="fm-btn fm-btn-primary">Kaydet ve Devam Et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="fm-card">
+            <h5 class="fm-card-title">💡 İpucu</h5>
+            <p class="fm-card-text">
+                İş akışını oluşturduktan sonra detay sayfasına giderek süreç adımlarını (servisler, onay mekanizmaları) ekleyebilirsiniz. 
+                AI motoru bu adımları analiz ederek rotasyon yapacaktır.
+            </p>
+        </div>
+    </div>
+</div>

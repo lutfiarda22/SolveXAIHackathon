@@ -1,0 +1,86 @@
+@model List<FlowMind.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "Denetim Günlüğü";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-white mb-1">📋 Denetim Günlüğü</h2>
+            <p class="text-white-50 mb-0">Tüm sistem eylemleri ve YZ kararları</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-light btn-sm me-2">Tümü</a>
+            <a asp-action="YZKayitlari" class="btn btn-outline-info btn-sm">🤖 Sadece YZ</a>
+        </div>
+    </div>
+
+    <div class="card bg-dark border-secondary">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                    <thead>
+                        <tr class="text-white-50">
+                            <th>Zaman</th>
+                            <th>Kullanıcı</th>
+                            <th>Eylem</th>
+                            <th>Hedef</th>
+                            <th>Detay</th>
+                            <th>YZ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var log in Model)
+                            {
+                                <tr>
+                                    <td class="text-white-50" style="white-space:nowrap;">
+                                        @log.Zaman.ToString("dd.MM HH:mm:ss")
+                                    </td>
+                                    <td>
+                                        @if (log.YZTetikledi)
+                                        {
+                                            <span class="badge bg-info">🤖 @log.KullaniciAd</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@log.KullaniciAd</span>
+                                        }
+                                    </td>
+                                    <td class="fw-semibold">@log.Eylem</td>
+                                    <td>
+                                        <span class="badge bg-secondary">@log.HedefTur</span>
+                                        <small class="text-white-50">@log.HedefId</small>
+                                    </td>
+                                    <td class="text-white-50" style="max-width:300px;">
+                                        @(log.Detay ?? "—")
+                                    </td>
+                                    <td class="text-center">
+                                        @if (log.YZTetikledi)
+                                        {
+                                            <span class="text-info">✓</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-white-50">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-white-50 py-4">
+                                    Henüz denetim kaydı bulunmuyor.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

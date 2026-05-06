@@ -1,0 +1,105 @@
+@model IEnumerable<FlowMind.Models.IntegrationLog>
+@{
+    ViewData["Title"] = "Entegrasyon Paneli";
+}
+
+<div class="mb-4">
+    <h2 style="font-weight: 700; margin-bottom: 0.2rem;">📡 Entegrasyonlar</h2>
+    <p class="text-muted" style="margin:0;">Sisteme bağlı harici servislerin durumlarını ve API çağrılarını görüntüleyin.</p>
+</div>
+
+<!-- Entegrasyon Kartları -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="fm-stat-card">
+            <div class="fm-stat-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--fm-accent-light);">👥</div>
+            <div class="fm-stat-info w-100">
+                <div class="d-flex justify-between align-center">
+                    <span style="font-weight: 700; font-size: 1.1rem;">CRM Servisi</span>
+                    <span class="fm-status-dot"></span>
+                </div>
+                <span class="fm-stat-label mt-1">Salesforce Mock API</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="fm-stat-card">
+            <div class="fm-stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--fm-warning);">🏭</div>
+            <div class="fm-stat-info w-100">
+                <div class="d-flex justify-between align-center">
+                    <span style="font-weight: 700; font-size: 1.1rem;">ERP Sistemi</span>
+                    <span class="fm-badge fm-badge-warning" style="font-size: 0.65rem;">Gecikmeli</span>
+                </div>
+                <span class="fm-stat-label mt-1">SAP Mock API</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="fm-stat-card">
+            <div class="fm-stat-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--fm-info);">📧</div>
+            <div class="fm-stat-info w-100">
+                <div class="d-flex justify-between align-center">
+                    <span style="font-weight: 700; font-size: 1.1rem;">Email Servisi</span>
+                    <span class="fm-status-dot"></span>
+                </div>
+                <span class="fm-stat-label mt-1">SendGrid Mock API</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Çağrı Logları -->
+<div class="fm-card">
+    <div class="d-flex justify-between align-center mb-3">
+        <h5 class="fm-card-title mb-0">Son API Çağrıları</h5>
+        <button class="fm-btn fm-btn-sm fm-btn-secondary">🔄 Yenile</button>
+    </div>
+    <div class="fm-table-wrap">
+        <table class="fm-table">
+            <thead>
+                <tr>
+                    <th>ID / Akış</th>
+                    <th>Sistem / İşlem</th>
+                    <th>Durum</th>
+                    <th>Süre</th>
+                    <th>Zaman</th>
+                    <th>Detaylar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var log in Model)
+                {
+                    <tr>
+                        <td>
+                            <div><strong>@log.Id</strong></div>
+                            <div style="font-size: 0.75rem; color: var(--fm-text-secondary);">@log.WorkflowInstanceId</div>
+                        </td>
+                        <td>
+                            <div><strong>@log.HedefSistem</strong></div>
+                            <div style="font-size: 0.75rem; color: var(--fm-text-secondary);">@log.Islem</div>
+                        </td>
+                        <td>
+                            @if(log.Durum == FlowMind.Models.IntegrationStatus.Basarili)
+                            {
+                                <span class="fm-badge fm-badge-success">Başarılı</span>
+                            }
+                            else if(log.Durum == FlowMind.Models.IntegrationStatus.Basarisiz)
+                            {
+                                <span class="fm-badge fm-badge-danger">Başarısız</span>
+                            }
+                            else
+                            {
+                                <span class="fm-badge fm-badge-warning">Bekliyor</span>
+                            }
+                        </td>
+                        <td>@log.SureMs ms</td>
+                        <td>@log.Zaman.ToString("HH:mm:ss")</td>
+                        <td>
+                            <button class="fm-btn fm-btn-sm fm-btn-secondary" onclick="alert('Gönderilen: @log.GonderilenVeri \n\nYanıt: @log.Yanit')">Payload</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
