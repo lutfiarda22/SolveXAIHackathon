@@ -39,6 +39,10 @@ namespace FlowMind.Models
         /// </summary>
         public int ToplamIslemSayisi { get; set; }
 
+        public int BekleyenOnaySayisi { get; set; }
+        public int AIKararSayisi { get; set; }
+        public double ZamanKazanciSaat { get; set; }
+
         /// <summary>
         /// Son aktiviteler (Activity Feed)
         /// </summary>

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FlowMind.Models;
 using FlowMind.Services;
+using FlowMind.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlowMind.Controllers
@@ -13,16 +14,22 @@ namespace FlowMind.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IIsAkisiServisi _isAkisiServisi;
-        private readonly IKararMotoru _kararMotoru;
+        private readonly AIDecisionEngine _kararMotoru;
+        private readonly FlowMindDbContext _context;
+        private readonly AuditService _auditService;
 
         public HomeController(
             ILogger<HomeController> logger,
             IIsAkisiServisi isAkisiServisi,
-            IKararMotoru kararMotoru)
+            AIDecisionEngine kararMotoru,
+            FlowMindDbContext context,
+            AuditService auditService)
         {
             _logger = logger;
             _isAkisiServisi = isAkisiServisi;
             _kararMotoru = kararMotoru;
+            _context = context;
+            _auditService = auditService;
         }
 
         /// <summary>
@@ -36,15 +43,19 @@ namespace FlowMind.Controllers
                 AktifIsAkisi = _isAkisiServisi.AktifIsAkisiSayisi(),
                 TamamlananIsAkisi = _isAkisiServisi.TamamlananIsAkisiSayisi(),
                 SistemDurumu = _isAkisiServisi.SistemDurumuOzeti(),
-                AIOtomasyonOrani = 78, // Mock data
-                ToplamIslemSayisi = 1250, // Mock data
-                Aktiviteler = new List<ActivityItem>
+                AIOtomasyonOrani = (int)(_kararMotoru.OtomasyonOrani() * 100),
+                ToplamIslemSayisi = _context.Tasks.Count() + _context.WorkflowInstances.Count(),
+                BekleyenOnaySayisi = _context.Tasks.Count(t => t.Durum == FlowMind.Models.TaskStatus.Atandı),
+                AIKararSayisi = _context.AIDecisions.Count(),
+                ZamanKazanciSaat = Math.Round(_context.AIDecisions.Count() * 15.0 / 60.0, 1),
+                Aktiviteler = _auditService.TumKayitlar().Take(5).Select(a => new ActivityItem
                 {
-                    new ActivityItem { Baslik = "AI Kararı: Onaylandı", Aciklama = "Sipariş #1042 otomatik olarak onaylandı.", Tarih = DateTime.Now.AddMinutes(-5), Ikon = "🤖", Tur = "success" },
-                    new ActivityItem { Baslik = "Yeni İş Akışı", Aciklama = "İnsan Kaynakları işe alım süreci başlatıldı.", Tarih = DateTime.Now.AddMinutes(-25), Ikon = "🔄", Tur = "info" },
-                    new ActivityItem { Baslik = "Risk Uyarısı", Aciklama = "Ödeme işleminde anomali tespit edildi, manuel inceleme bekleniyor.", Tarih = DateTime.Now.AddHours(-1), Ikon = "⚠️", Tur = "warning" },
-                    new ActivityItem { Baslik = "Entegrasyon Hatası", Aciklama = "CRM servisine bağlanılamadı.", Tarih = DateTime.Now.AddHours(-2), Ikon = "❌", Tur = "danger" }
-                }
+                    Baslik = a.KullaniciAd + " - " + a.Eylem,
+                    Aciklama = string.IsNullOrEmpty(a.Detay) ? a.HedefTur : a.Detay,
+                    Tarih = a.Zaman,
+                    Ikon = a.YZTetikledi ? "🤖" : "📝",
+                    Tur = a.YZTetikledi ? "success" : "info"
+                }).ToList()
             };
 
             _logger.LogInformation("Ana panel yüklendi. Toplam: {Toplam}, Aktif: {Aktif}",

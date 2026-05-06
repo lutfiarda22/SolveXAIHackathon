@@ -11,7 +11,7 @@
 
 <!-- İstatistik Kartları -->
 <div class="row g-4 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="fm-stat-card fm-stat-total">
             <div class="fm-stat-icon">📊</div>
             <div class="fm-stat-info">
@@ -20,21 +20,30 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="fm-stat-card fm-stat-active">
-            <div class="fm-stat-icon">⚡</div>
+            <div class="fm-stat-icon">⏳</div>
             <div class="fm-stat-info">
-                <span class="fm-stat-number">@Model.AktifIsAkisi</span>
-                <span class="fm-stat-label">Aktif İş Akışı</span>
+                <span class="fm-stat-number">@Model.BekleyenOnaySayisi</span>
+                <span class="fm-stat-label">Bekleyen Onay</span>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="fm-stat-card fm-stat-done">
             <div class="fm-stat-icon">🤖</div>
             <div class="fm-stat-info">
-                <span class="fm-stat-number">@Model.AIOtomasyonOrani%</span>
-                <span class="fm-stat-label">AI Otomasyon Oranı</span>
+                <span class="fm-stat-number">@Model.AIKararSayisi</span>
+                <span class="fm-stat-label">AI Kararları (@Model.AIOtomasyonOrani%)</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="fm-stat-card" style="background: linear-gradient(135deg, var(--fm-primary), var(--fm-accent)); color: white; border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; border: none; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
+            <div class="fm-stat-icon" style="background: rgba(255,255,255,0.2); color: white;">⏱️</div>
+            <div class="fm-stat-info">
+                <span class="fm-stat-number" style="color: white;">@Model.ZamanKazanciSaat sa</span>
+                <span class="fm-stat-label" style="color: rgba(255,255,255,0.8);">Zaman Kazancı</span>
             </div>
         </div>
     </div>
@@ -93,7 +102,7 @@
                 </div>
                 <div class="fm-status-row">
                     <span>Veritabanı</span>
-                    <span class="fm-badge fm-badge-warning">Beklemede</span>
+                    <span class="fm-badge fm-badge-success">Aktif</span>
                 </div>
             </div>
             
