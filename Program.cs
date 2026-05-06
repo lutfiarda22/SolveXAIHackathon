@@ -27,6 +27,9 @@ namespace FlowMind
             // Bildirim servisi
             builder.Services.AddScoped<NotificationService>();
 
+            // Mock entegrasyon servisi (CRM, ERP, Slack vb.)
+            builder.Services.AddScoped<MockIntegrationService>();
+
             var app = builder.Build();
 
             // Başlangıç verilerini yükle
