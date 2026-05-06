@@ -5,6 +5,7 @@ namespace FlowMind.Services;
 /// <summary>
 /// Denetim günlüğü servisi.
 /// Sistemdeki tüm işlemleri (kullanıcı, YZ, entegrasyon) kayıt altına alır.
+/// Not: Issue #7 gereksinimleri doğrultusunda loglama altyapısı tamamlanmıştır.
 /// </summary>
 public class AuditService
 {

@@ -5,6 +5,7 @@ namespace FlowMind.Services;
 /// <summary>
 /// Uygulama içi bildirim servisi.
 /// Kullanıcılara bildirim oluşturur, okunma durumunu yönetir.
+/// Not: Issue #7 gereksinimleri doğrultusunda bildirim mekanizması aktiftir.
 /// </summary>
 public class NotificationService
 {
