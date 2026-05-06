@@ -64,9 +64,31 @@ public class WorkflowController : Controller
         var instance = _isAkisiServisi.IsAkisiBaslat(id, "USR-004", formVerisi);
 
         // Akış başladığında ilk adımı otomatik işletmeyi deneriz
-        _isAkisiServisi.AdimiIslet(instance.Id).Wait();
+        var decision = _isAkisiServisi.AdimiIslet(instance.Id).Result;
 
-        return RedirectToAction(nameof(Details), new { id = id });
+        // AI sonuç sayfasına yönlendir
+        return RedirectToAction(nameof(RunResult), new { id = id, instanceId = instance.Id, decisionId = decision?.Id });
+    }
+
+    /// <summary>AI karar sonucunu gösterir</summary>
+    public IActionResult RunResult(string id, string instanceId, string? decisionId)
+    {
+        var workflow = _isAkisiServisi.IsAkisiGetir(id);
+        if (workflow == null) return NotFound();
+
+        ViewBag.Workflow = workflow;
+        ViewBag.InstanceId = instanceId;
+
+        // AI kararını bul
+        FlowMind.Models.AIDecision? decision = null;
+        if (!string.IsNullOrEmpty(decisionId))
+        {
+            var store = HttpContext.RequestServices.GetRequiredService<InMemoryDataStore>();
+            decision = store.Get(store.AIDecisions, decisionId);
+        }
+        ViewBag.Decision = decision;
+
+        return View();
     }
 
     [HttpGet]
