@@ -60,19 +60,98 @@ namespace FlowMind.Services
             workflow.Id = "WF-" + new Random().Next(1000, 9999);
             workflow.OlusturmaTarihi = DateTime.Now;
 
-            // Adımlara benzersiz ID ata
-            if (workflow.Adimlar != null)
+            if (workflow.Adimlar == null) workflow.Adimlar = new List<FlowMind.Models.WorkflowStep>();
+
+            // --- Otomatik Adım Oluşturma Mantığı ---
+            var konu = workflow.FormVerisi?.GetValueOrDefault("Konu", "");
+            var departman = workflow.FormVerisi?.GetValueOrDefault("Departman", "");
+            
+            int sira = 1;
+
+            if (departman == "Hukuk" || departman == "Yönetici")
             {
-                for (int i = 0; i < workflow.Adimlar.Count; i++)
-                {
-                    workflow.Adimlar[i].Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}";
-                    workflow.Adimlar[i].Sira = i + 1;
-                }
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = departman == "Hukuk" ? "Hukuksal İnceleme ve Onay" : "Yönetici Onayı", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.Onay, 
+                    AtananKisi = "Yonetici",
+                    Aciklama = departman == "Hukuk" ? "Hukuk departmanı talebi doğrudan yönetici onayına sunulur." : "Yönetici departmanı talepleri doğrudan onay sürecine girer."
+                });
+            }
+            else if (konu == "Satınalma" || konu == "Sipariş")
+            {
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "YZ Risk Analizi ve Karar", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.YZKarar, 
+                    Aciklama = "Yapay zeka departman ve tutara göre risk değerlendirmesi yapar." 
+                });
+
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "ERP Sipariş Kaydı", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.Entegrasyon, 
+                    EntegrasyonTuru = FlowMind.Models.IntegrationType.ERP,
+                    Aciklama = "Onay sonrası sipariş otomatik ERP sistemine işlenir." 
+                });
+            }
+            else if (konu == "İzin")
+            {
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "Yönetici Onayı", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.Onay, 
+                    AtananKisi = "Yonetici",
+                    Aciklama = "İzin talebi için yönetici onayı." 
+                });
+
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "İK Kaydı ve Bildirim", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.Entegrasyon, 
+                    EntegrasyonTuru = FlowMind.Models.IntegrationType.EPosta,
+                    Aciklama = "Onaylanan iznin İK sistemine ve çalışana iletilmesi." 
+                });
+            }
+            else if (konu == "Fatura")
+            {
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "Finans Onayı", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.Onay, 
+                    AtananKisi = "Finans",
+                    Aciklama = "Fatura için finans departmanının ön onayı." 
+                });
+
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "Ödeme Planlama", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.YZKarar, 
+                    Aciklama = "YZ tarafından vade analizinin yapılması." 
+                });
+            }
+            else 
+            {
+                // Default
+                workflow.Adimlar.Add(new FlowMind.Models.WorkflowStep { 
+                    Id = $"STP-{Guid.NewGuid().ToString("N")[..6]}", 
+                    Ad = "Genel Değerlendirme (YZ)", 
+                    Sira = sira++, 
+                    EylemTuru = FlowMind.Models.StepActionType.YZKarar, 
+                    Aciklama = "Talebin yapay zeka tarafından genel değerlendirilmesi." 
+                });
             }
 
             _context.Workflows.Add(workflow);
             _context.SaveChanges();
-            _logger.LogInformation("Yeni iş akışı oluşturuldu: {Id} - {Ad}", workflow.Id, workflow.Ad);
+            _logger.LogInformation("Yeni iş akışı oluşturuldu (Otomatik Adımlı): {Id} - {Ad}", workflow.Id, workflow.Ad);
 
             return workflow;
         }
@@ -165,14 +244,19 @@ namespace FlowMind.Services
                             await _integrationService.CrmKayitOlustur(instance.Id, "Otomatik", "Kayıt");
                         else if (currentStep.EntegrasyonTuru == FlowMind.Models.IntegrationType.ERP)
                             await _integrationService.ErpSatinalmaEmri(instance.Id, "Otomatik", 100);
-                        // vb.
                     }
                     instance.OtomatikTamamlanan++;
+
+                    // Kalan adım var mı kontrol et — yoksa Tamamlandı yap
+                    if (!workflow.Adimlar.Any(a => a.Sira >= instance.MevcutAdim))
+                    {
+                        instance.Durum = FlowMind.Models.WorkflowStatus.Tamamlandı;
+                        instance.BitisTarihi = DateTime.Now;
+                    }
                     break;
                 case FlowMind.Models.AIAction.ManuelInceleme:
                 case FlowMind.Models.AIAction.OncelikliYonlendir:
                     _logger.LogInformation("Adım {Sira} manuel incelemeye yönlendirildi.", currentStep.Sira);
-                    // Görev (Task) oluşturulacak (basit mock)
                     var task = new FlowMind.Models.TaskItem
                     {
                         Id = "TSK-" + new Random().Next(1000, 9999),
@@ -185,20 +269,33 @@ namespace FlowMind.Services
                         OlusturmaTarihi = DateTime.Now
                     };
 
-                    // Basit Atama Mock'u
                     string atananKisiId = currentStep.AtananKisi == "Yonetici" ? "USR-002" :
                                           currentStep.AtananKisi == "Finans" ? "USR-003" : "USR-004";
 
-                    // Spesifik Yönlendirmeler
+                    var departman = instance.FormVerisi.GetValueOrDefault("Departman", "");
                     var konu = instance.FormVerisi.GetValueOrDefault("Konu", "");
-                    if (konu == "İzin") atananKisiId = "USR-004"; // İnsan Kaynakları (veya Yöneticisi)
-                    else if (konu == "İade") atananKisiId = "USR-003"; // İade / Operasyon Birimi
+
+                    if (departman == "Hukuk" || departman == "Yönetici")
+                    {
+                        atananKisiId = "USR-002"; // Doğrudan Yöneticiye (Lütfi Arda)
+                    }
+                    else if (konu == "İzin") 
+                    {
+                        atananKisiId = "USR-004";
+                    }
+                    else if (konu == "İade") 
+                    {
+                        atananKisiId = "USR-003";
+                    }
 
                     task.AtananKisiId = atananKisiId;
 
+                    var atananKisiUser = _context.Users.FirstOrDefault(u => u.Id == atananKisiId);
+                    if (atananKisiUser != null)
+                        task.AtananKisiAd = atananKisiUser.TamAd;
+
                     _context.Tasks.Add(task);
 
-                    // E-posta Gönder
                     var atananUser = _context.Users.FirstOrDefault(u => u.Id == atananKisiId);
                     if (atananUser != null)
                     {
@@ -210,12 +307,16 @@ namespace FlowMind.Services
                         );
                     }
 
-                    // Beklemeye alıyoruz
                     instance.Durum = FlowMind.Models.WorkflowStatus.Beklemede;
                     break;
                 case FlowMind.Models.AIAction.AdimAtla:
                     _logger.LogInformation("Adım {Sira} atlandı.", currentStep.Sira);
                     instance.MevcutAdim++;
+                    if (!workflow.Adimlar.Any(a => a.Sira >= instance.MevcutAdim))
+                    {
+                        instance.Durum = FlowMind.Models.WorkflowStatus.Tamamlandı;
+                        instance.BitisTarihi = DateTime.Now;
+                    }
                     break;
                 case FlowMind.Models.AIAction.Reddet:
                     instance.Durum = FlowMind.Models.WorkflowStatus.İptalEdildi;

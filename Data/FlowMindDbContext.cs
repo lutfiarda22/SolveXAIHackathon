@@ -64,7 +64,7 @@ public class FlowMindDbContext : DbContext
         var users = new[]
         {
             new User { Id = "USR-001", Ad = "Ahmet", Soyad = "Yılmaz", EPosta = "ahmet@flowmind.com", Rol = UserRole.Calisan, Departman = "Bilişim", KayitTarihi = DateTime.Now },
-            new User { Id = "USR-002", Ad = "Lütfi", Soyad = "Arda", EPosta = "lutfi@flowmind.com", Rol = UserRole.Yonetici, Departman = "Yönetim", KayitTarihi = DateTime.Now },
+            new User { Id = "USR-002", Ad = "Lütfi", Soyad = "Arda", EPosta = "lutfi@flowmind.com", Rol = UserRole.Yonetici, Departman = "Yönetici", KayitTarihi = DateTime.Now },
             new User { Id = "USR-003", Ad = "Esma", Soyad = "Mol", EPosta = "esma@flowmind.com", Rol = UserRole.Finans, Departman = "Finans", KayitTarihi = DateTime.Now },
             new User { Id = "USR-004", Ad = "Sinem", Soyad = "Doğan", EPosta = "sinem@flowmind.com", Rol = UserRole.Admin, Departman = "İnsan Kaynakları", KayitTarihi = DateTime.Now },
             new User { Id = "USR-005", Ad = "Ali", Soyad = "Öztürk", EPosta = "ali@flowmind.com", Rol = UserRole.Calisan, Departman = "Satış", KayitTarihi = DateTime.Now }

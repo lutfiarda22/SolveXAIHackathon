@@ -51,6 +51,10 @@ public class WorkflowController : Controller
         var workflow = _isAkisiServisi.IsAkisiGetir(id);
         if (workflow == null) return NotFound();
 
+        var context = HttpContext.RequestServices.GetRequiredService<FlowMindDbContext>();
+        var instance = context.WorkflowInstances.OrderByDescending(i => i.BaslangicTarihi).FirstOrDefault(i => i.WorkflowId == id);
+        ViewBag.Instance = instance;
+
         return View(workflow);
     }
 
@@ -61,15 +65,27 @@ public class WorkflowController : Controller
         var workflow = _isAkisiServisi.IsAkisiGetir(id);
         if (workflow == null) return NotFound();
 
-        // Workflow'dan gelen gerçek form verisini kullan (Tutar, Departman, Konu)
+        var context = HttpContext.RequestServices.GetRequiredService<FlowMindDbContext>();
+
+        // Zaten çalışan/bekleyen/tamamlanmış bir instance varsa tekrar oluşturma
+        var mevcutInstance = context.WorkflowInstances
+            .FirstOrDefault(i => i.WorkflowId == id);
+        if (mevcutInstance != null)
+        {
+            // Mevcut sonuç sayfasına yönlendir
+            var mevcutDecision = context.AIDecisions
+                .OrderByDescending(d => d.KararZamani)
+                .FirstOrDefault(d => d.WorkflowInstanceId == mevcutInstance.Id);
+            return RedirectToAction(nameof(RunResult), new { id = id, instanceId = mevcutInstance.Id, decisionId = mevcutDecision?.Id });
+        }
+
         var formVerisi = workflow.FormVerisi ?? new Dictionary<string, string>();
 
-        var instance = _isAkisiServisi.IsAkisiBaslat(id, "USR-004", formVerisi);
+        var currentUserId = Request.Cookies["CurrentUserId"] ?? "USR-004";
+        var instance = _isAkisiServisi.IsAkisiBaslat(id, currentUserId, formVerisi);
 
-        // Akış başladığında ilk adımı otomatik işletmeyi deneriz
         var decision = _isAkisiServisi.AdimiIslet(instance.Id).Result;
 
-        // AI sonuç sayfasına yönlendir
         return RedirectToAction(nameof(RunResult), new { id = id, instanceId = instance.Id, decisionId = decision?.Id });
     }
 
@@ -93,31 +109,51 @@ public class WorkflowController : Controller
 
         return View();
     }
-
-    [HttpGet]
-    public IActionResult AddStep(string id)
-    {
-        var workflow = _isAkisiServisi.IsAkisiGetir(id);
-        if (workflow == null) return NotFound();
-
-        ViewBag.WorkflowId = id;
-        ViewBag.WorkflowName = workflow.Ad;
-        ViewBag.Konu = workflow.FormVerisi?.GetValueOrDefault("Konu", "Diğer") ?? "Diğer";
-        return View(new WorkflowStep());
-    }
-
+    /// <summary>Tüm iş akışlarının durumlarını görevlere göre senkronize eder</summary>
     [HttpPost]
-    public IActionResult AddStep(string id, WorkflowStep adim)
+    public IActionResult Refresh()
     {
-        if (!string.IsNullOrEmpty(adim.Ad))
+        var context = HttpContext.RequestServices.GetRequiredService<FlowMindDbContext>();
+        var instances = context.WorkflowInstances.ToList();
+
+        foreach (var instance in instances)
         {
-            _isAkisiServisi.AdimEkle(id, adim);
-            return RedirectToAction(nameof(Details), new { id = id });
+            // Zaten tamamlanmış veya iptal edilmişse atla
+            if (instance.Durum == WorkflowStatus.Tamamlandı || instance.Durum == WorkflowStatus.İptalEdildi)
+                continue;
+
+            // Bu instance'a ait bekleyen görev var mı?
+            var bekleyenGorev = context.Tasks
+                .Any(t => t.WorkflowInstanceId == instance.Id && t.Durum == FlowMind.Models.TaskStatus.Atandı);
+
+            if (bekleyenGorev)
+                continue; // Hâlâ bekleyen görev var, dokunma
+
+            // Tüm görevler onaylanmış mı?
+            var tumGorevler = context.Tasks
+                .Where(t => t.WorkflowInstanceId == instance.Id)
+                .ToList();
+
+            if (tumGorevler.Any())
+            {
+                var hepsiOnaylandi = tumGorevler.All(t => t.Durum == FlowMind.Models.TaskStatus.Onaylandı);
+                var birRedVar = tumGorevler.Any(t => t.Durum == FlowMind.Models.TaskStatus.Reddedildi);
+
+                if (hepsiOnaylandi)
+                {
+                    instance.Durum = WorkflowStatus.Tamamlandı;
+                    instance.BitisTarihi = DateTime.Now;
+                }
+                else if (birRedVar)
+                {
+                    instance.Durum = WorkflowStatus.İptalEdildi;
+                    instance.BitisTarihi = DateTime.Now;
+                }
+            }
         }
 
-        var workflow = _isAkisiServisi.IsAkisiGetir(id);
-        ViewBag.WorkflowId = id;
-        ViewBag.WorkflowName = workflow?.Ad ?? "";
-        return View(adim);
+        context.SaveChanges();
+        return RedirectToAction(nameof(Index));
     }
+
 }

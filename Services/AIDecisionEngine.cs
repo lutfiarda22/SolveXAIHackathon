@@ -92,6 +92,13 @@ public class AIDecisionEngine
         var izinSebebi = instance.FormVerisi.GetValueOrDefault("IzinSebebi", "");
         var iadeSebebi = instance.FormVerisi.GetValueOrDefault("IadeSebebi", "");
 
+        // ÖZEL KURAL: Hukuk ve Yönetici departmanları her zaman manuel inceleme (YZ Karar vermez)
+        if (departman == "Hukuk" || departman == "Yönetici")
+        {
+            return (AIAction.ManuelInceleme, 1.0, 
+                $"{departman} departmanına ait talepler güvenlik ve uyumluluk gereği doğrudan yönetici onayına sunulur.");
+        }
+
         // KURAL 0: İzin Süreçleri (Hastalık, Vefat vb.)
         if (!string.IsNullOrEmpty(izinSebebi) || konu.Contains("İzin", StringComparison.OrdinalIgnoreCase) || adimAdi.Contains("İzin", StringComparison.OrdinalIgnoreCase) || adimAdi.Contains("izin", StringComparison.OrdinalIgnoreCase))
         {

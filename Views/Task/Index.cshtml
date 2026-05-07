@@ -1,4 +1,5 @@
 @model IEnumerable<FlowMind.Models.TaskItem>
+@inject FlowMind.Data.FlowMindDbContext _context
 @{
     ViewData["Title"] = "Görevler";
 }
@@ -13,6 +14,14 @@
 <div class="row g-4">
     @foreach (var task in Model)
     {
+        var wfInstance = _context.WorkflowInstances.FirstOrDefault(i => i.Id == task.WorkflowInstanceId);
+        var wfObj = wfInstance != null ? _context.Workflows.FirstOrDefault(w => w.Id == wfInstance.WorkflowId) : null;
+        var wfName = wfInstance?.WorkflowAdi ?? "-";
+        var wfAciklama = wfObj?.Aciklama ?? "";
+        var departman = wfInstance?.FormVerisi?.GetValueOrDefault("Departman", "-") ?? "-";
+        var tutar = wfInstance?.FormVerisi?.GetValueOrDefault("Tutar", "") ?? "";
+        var konu = wfInstance?.FormVerisi?.GetValueOrDefault("Konu", "-") ?? "-";
+
         <div class="col-md-6">
             <div class="fm-card @(task.Durum == FlowMind.Models.TaskStatus.Atandı ? "" : "opacity-75")">
                 <div class="d-flex justify-between align-center mb-3">
@@ -58,7 +67,30 @@
                 </div>
 
                 <h5 class="fm-card-title mb-2">@task.Baslik</h5>
-                <p class="fm-card-text" style="min-height: 40px;">@task.Aciklama</p>
+
+                <!-- İş Akışı Detay Bilgileri -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--fm-border); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+                    <div style="font-size: 0.78rem; font-weight: 600; color: var(--fm-primary); margin-bottom: 6px;">📂 İş Akışı Bilgileri</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: 0.8rem;">
+                        <div><span class="text-muted">İş Akışı:</span> <strong>@wfName</strong></div>
+                        <div><span class="text-muted">Konu:</span> <strong>@konu</strong></div>
+                        <div><span class="text-muted">Departman:</span> <strong>@departman</strong></div>
+                        @if (!string.IsNullOrEmpty(tutar))
+                        {
+                            <div><span class="text-muted">Tutar:</span> <strong>₺@tutar</strong></div>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(wfAciklama))
+                    {
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--fm-border); font-size: 0.8rem;">
+                            <span class="text-muted">Açıklama:</span> <strong>@wfAciklama</strong>
+                        </div>
+                    }
+                </div>
+
+                <p class="fm-card-text" style="font-size: 0.82rem; color: var(--fm-text-secondary);">
+                    <strong>AI Gerekçesi:</strong> @task.Aciklama
+                </p>
                 
                 <div class="text-muted mb-3" style="font-size: 0.75rem;">
                     Oluşturulma: @task.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm") | Akış ID: @task.WorkflowInstanceId
@@ -93,3 +125,4 @@
         </div>
     }
 </div>
+
