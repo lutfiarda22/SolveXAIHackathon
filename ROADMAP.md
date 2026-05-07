@@ -1,7 +1,7 @@
 # FlowMind - 5 Saatlik Hackathon Yol Haritası 🚀
 
 ## Hedef
-Yapay zeka odaklı iş akışı orkestrasyonunu; sahte entegrasyonlar ve bellek içi veritabanı (`ConcurrentDictionary`) ile gösteren, yerel olarak çalışan bir ASP.NET Core MVC (.NET 9) web uygulaması teslim etmek.
+Yapay zeka odaklı iş akışı orkestrasyonunu; sahte entegrasyonlar, SQL Server veritabanı ve Entity Framework Core ile gösteren, yerel olarak çalışan bir ASP.NET Core MVC (.NET 9) web uygulaması teslim etmek.
 
 ## Ekip Yapısı
 - **Esma (esmamol):** YZ Karar Motoru, servis katmanı ve temel modeller.
@@ -15,7 +15,7 @@ Yapay zeka odaklı iş akışı orkestrasyonunu; sahte entegrasyonlar ve bellek 
 
 - [x] ASP.NET Core MVC (.NET 9) projesini oluşturun (`dotnet new mvc`)
 - [x] Tüm modelleri oluşturun: `Workflow`, `WorkflowStep`, `WorkflowInstance`, `TaskItem`, `User`, `AuditLog`, `Notification`, `IntegrationLog`, `AIDecision`
-- [x] `InMemoryDataStore` servisini yazın (`ConcurrentDictionary` tabanlı, Singleton)
+- [x] `FlowMindDbContext` bağlamını oluşturun (SQL Server ve EF Core tabanlı)
 - [x] `_Layout.cshtml` ve `_Sidebar.cshtml` ile temel arayüz iskeletini kurun
 - [x] Proje klasör yapısını oluşturun: `/Models`, `/Services`, `/Views`, `/wwwroot`
 

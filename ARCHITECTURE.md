@@ -14,7 +14,7 @@ FlowMind, **ASP.NET Core MVC** (.NET 9) üzerine kurulu YZ destekli iş akışı
 - **İlerleme takibi** — gerçek zamanlı gösterge paneli
 - **Sahte entegrasyonlar** — CRM, E-posta, Drive, Slack, ERP simülasyonu
 
-Tüm veriler **bellek içi veritabanında** (`ConcurrentDictionary`) saklanır.
+Tüm veriler **SQL Server veritabanında** (Entity Framework Core ile) saklanır.
 
 ---
 
@@ -40,7 +40,7 @@ Tüm veriler **bellek içi veritabanında** (`ConcurrentDictionary`) saklanır.
 │  └──────────────────────────┬────────────────────────┘     │
 │                             │                              │
 │  ┌──────────────────────────▼────────────────────────┐     │
-│  │           BELLEK İÇİ VERİ DEPOSU                  │     │
+│  │           SQL SERVER VERİTABANI (EF Core)         │     │
 │  │  İşAkışları[] Görevler[] Kayıtlar[] Kullanıcılar[]│     │
 │  └───────────────────────────────────────────────────┘     │
 └────────────────────────────────────────────────────────────┘
@@ -84,7 +84,7 @@ Tüm veriler **bellek içi veritabanında** (`ConcurrentDictionary`) saklanır.
 | `IntegrationService` | CRM, E-posta, Drive, Slack, ERP sahte bağlayıcıları |
 | `NotificationService` | Uygulama içi bildirim oluştur ve ilet |
 | `AuditService` | Denetim günlüğü kayıtları yaz |
-| `InMemoryDataStore` | Merkezi, iş parçacığı güvenli bellek içi depolama |
+| `FlowMindDbContext` | Merkezi, SQL Server tabanlı EF Core veritabanı bağlamı |
 
 ### 3.4 Görünümler (`/Views`)
 
@@ -172,7 +172,7 @@ Her sahte bağlayıcı: gecikme simüle eder (50–200ms), gerçekçi yanıt dö
 
 | İlke | Uygulama |
 |---|---|
-| **Basitlik** | Bellek içi depo, ORM yok, harici DB yok |
+| **Kalıcılık** | SQL Server veritabanı, EF Core ORM kullanımı |
 | **Sorumluluk Ayrımı** | Controller → Servis → Veri Deposu |
 | **YZ Şeffaflığı** | Her YZ kararı gerekçesiyle kaydedilir |
 | **Demo Hazırlığı** | Önceden yüklenmiş veriler, anında yanıt |

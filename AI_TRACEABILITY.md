@@ -18,7 +18,16 @@ Sistemin çekirdeğindeki akıllı bileşendir. İş akışı adımlarını değ
 | **Anomali Tespiti** | Normal kalıptan sapmaları işaretler | Alışılmadık tutar/departman → manuel inceleme |
 | **Akıllı Atama** | En uygun onaylayıcıyı seçer | En az bekleyen görevi olan kişiye ata |
 
-### 1.2 YZ Karar Modeli (`AIDecision`)
+### 1.2 YZ Arka Plan Aracısı (`AIAgentBackgroundService`)
+
+Sistemin arka planında sürekli çalışan otonom bir ajandır. Zaman aşımına uğrayan veya tıkanan görevleri (Task) tespit edip, proaktif olarak müdahale eder:
+
+| Olay | YZ Müdahalesi | Örnek |
+|---|---|---|
+| **Düşük Öncelikli Gecikme** | Görevi otomatik onaylar ve iş akışını ilerletir | Önceliği düşük bir izin talebi onay süresini geçerse → otomatik onay |
+| **Yüksek Öncelikli Gecikme** | Üst yöneticiye eskale (havale) eder | Fatura onayında gecikme → Lütfi Arda'ya uyarı ve yönlendirme |
+
+### 1.3 YZ Karar Modeli (`AIDecision`)
 
 Her karar aşağıdaki verilerle kaydedilir:
 
@@ -62,6 +71,7 @@ AIDecision {
 | Alan | YZ Etkisi | Kazanım |
 |---|---|---|
 | **Onay Süreçleri** | Düşük riskli talepleri otomatik onaylar | Manuel onay bekleme süresi → sıfır |
+| **Zaman Aşımı Yönetimi** | Geciken görevleri tespit edip çözer veya eskale eder | Süreç tıkanıklıkları → sıfır |
 | **Görev Atama** | İş yükü dengelemesi yapar | Darboğazları önler |
 | **Entegrasyon Tetikleme** | CRM/ERP güncellemesini otomatik başlatır | Manuel veri girişi → sıfır |
 | **Anomali Tespiti** | Olağandışı durumları işaretler | İnsan hataları erkenden yakalanır |
@@ -90,6 +100,11 @@ AIDecision {
 - YZ otomatik onay verdiğinde `IntegrationService` direkt tetiklenir
 - İnsan müdahalesi olmadan: CRM kaydı oluştur, ERP emri aç, Slack bildirimi gönder
 
+### 3.5 Arka Plan Görev Denetimi (`AIAgentBackgroundService`)
+- Sistemde arka planda sessizce çalışır (sürekli SLA denetimi)
+- Zaman aşımı (SLA) yaşanan adımlara anında müdahale eder
+- İşlerin insan müdahalesi eksikliğinden dolayı tıkanmasını kesin olarak engeller
+
 ---
 
 ## 4. YZ Şeffaflık İlkeleri
@@ -116,8 +131,9 @@ ESKİ SÜREÇ (Manuel):
 YENİ SÜREÇ (FlowMind + YZ):
   Talep → YZ değerlendirir → Otomatik onay → CRM/ERP otomatik güncellenir
   ⏱ Ortalama: 30 saniye
+  *(Eğer manuel onay gerekirse ve gecikirse, Arka Plan YZ ajanı görevi çözer/eskale eder)*
 
   📉 %87 zaman tasarrufu
 ```
 
-YZ, her adımda şeffaf gerekçe sunarak güven oluşturur. Kullanıcı istediği zaman YZ kararını geçersiz kılabilir — kontrol her zaman insandadır.
+YZ, her adımda ve arka plan eyleminde şeffaf gerekçe sunarak denetim günlüğü (`AuditLog`) üzerinden güven oluşturur. Kullanıcı istediği zaman YZ kararını geçersiz kılabilir — kontrol her zaman insandadır.
